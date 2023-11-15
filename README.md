@@ -14,7 +14,11 @@ git clone https://github.com/cnhkbbs/jwxt.git
 ## 要求
 ### 图标
 图标大小统一 48px
+
 图标颜色 Hex 168EF5
+
+图标格式： png
+
 图标下载地址 https://remixicon.com/icon/message-3-line
 
 ### 代码风格
