@@ -32,6 +32,16 @@ const _sfc_main = {
     };
   },
   methods: {
+    goToGradesPage() {
+      common_vendor.index.navigateTo({
+        url: "/pages/grades/grades"
+      });
+    },
+    goToCoursePage() {
+      common_vendor.index.navigateTo({
+        url: "/pages/course/course"
+      });
+    },
     onPreviewImage(url) {
       common_vendor.index.previewImage({
         urls: this.pictures.map((v) => v.url),
@@ -40,6 +50,18 @@ const _sfc_main = {
     }
   }
 };
+if (!Array) {
+  const _easycom_uni_grid_item2 = common_vendor.resolveComponent("uni-grid-item");
+  const _easycom_uni_grid2 = common_vendor.resolveComponent("uni-grid");
+  const _easycom_uni_section2 = common_vendor.resolveComponent("uni-section");
+  (_easycom_uni_grid_item2 + _easycom_uni_grid2 + _easycom_uni_section2)();
+}
+const _easycom_uni_grid_item = () => "../../uni_modules/uni-grid/components/uni-grid-item/uni-grid-item.js";
+const _easycom_uni_grid = () => "../../uni_modules/uni-grid/components/uni-grid/uni-grid.js";
+const _easycom_uni_section = () => "../../uni_modules/uni-section/components/uni-section/uni-section.js";
+if (!Math) {
+  (_easycom_uni_grid_item + _easycom_uni_grid + _easycom_uni_section)();
+}
 function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
   return {
     a: common_vendor.f($data.pictures, (item, k0, i0) => {
@@ -48,12 +70,20 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
         b: item.url,
         c: item.id
       };
+    }),
+    b: common_vendor.o(($event) => $options.goToGradesPage()()),
+    c: common_vendor.o(($event) => $options.goToCoursePage()),
+    d: common_vendor.o(($event) => $options.goToCoursePage()),
+    e: common_vendor.o(($event) => $options.goToCoursePage()),
+    f: common_vendor.p({
+      column: 4
+    }),
+    g: common_vendor.p({
+      title: "功能一览",
+      type: "line",
+      padding: true
     })
   };
 }
-<<<<<<< HEAD
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "D:/HBuilderProjects/jwxt/pages/swiper/swiper.vue"]]);
-=======
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "E:/vue/wx_demo/pages/swiper/swiper.vue"]]);
->>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "D:/HBuilderProjects/jwxt/pages/fun/fun.vue"]]);
 wx.createPage(MiniProgramPage);

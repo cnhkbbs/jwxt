@@ -1,12 +1,8 @@
 {
-  "navigationBarTitleText": "我的",
-<<<<<<< HEAD
+  "navigationBarTitleText": "功能",
   "usingComponents": {
     "uni-grid-item": "../../uni_modules/uni-grid/components/uni-grid-item/uni-grid-item",
     "uni-grid": "../../uni_modules/uni-grid/components/uni-grid/uni-grid",
     "uni-section": "../../uni_modules/uni-section/components/uni-section/uni-section"
   }
-=======
-  "usingComponents": {}
->>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
 }
