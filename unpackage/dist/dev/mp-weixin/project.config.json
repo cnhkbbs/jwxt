@@ -1,30 +1,85 @@
 {
   "description": "项目配置文件。",
   "packOptions": {
+<<<<<<< HEAD
+    "ignore": []
+=======
     "ignore": [],
     "include": []
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
   },
   "setting": {
     "urlCheck": false,
     "es6": true,
+<<<<<<< HEAD
+    "enhance": true,
+    "postcss": false,
+    "preloadBackgroundData": false,
+    "minified": false,
+    "newFeature": true,
+    "coverView": true,
+    "nodeModules": false,
+    "autoAudits": false,
+    "showShadowRootInWxmlPanel": true,
+    "scopeDataCheck": false,
+    "uglifyFileName": false,
+    "checkInvalidKey": true,
+    "checkSiteMap": true,
+    "uploadWithSourceMap": true,
+    "compileHotReLoad": true,
+    "lazyloadPlaceholderEnable": false,
+    "useMultiFrameRuntime": true,
+    "useApiHook": true,
+    "useApiHostProcess": true,
+=======
     "postcss": false,
     "minified": false,
     "newFeature": true,
     "bigPackageSizeSupport": true,
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
     "babelSetting": {
       "ignore": [],
       "disablePlugins": [],
       "outputPath": ""
     },
+<<<<<<< HEAD
+    "useIsolateContext": false,
+    "userConfirmedBundleSwitch": false,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "disableUseStrict": false,
+    "showES6CompileOption": false,
+    "useCompilerPlugins": false,
+    "ignoreUploadUnusedFiles": true,
+    "minifyWXML": true
+=======
     "condition": false
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
   },
   "compileType": "miniprogram",
   "libVersion": "",
   "appid": "wxe29359552aa80ff4",
   "projectname": "wx_demo",
+<<<<<<< HEAD
+  "condition": {
+    "search": {
+      "list": []
+    },
+    "conversation": {
+      "list": []
+    },
+    "game": {
+      "list": []
+    },
+    "miniprogram": {
+      "list": []
+    }
+=======
   "condition": {},
   "editorSetting": {
     "tabIndent": "insertSpaces",
     "tabSize": 2
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
   }
 }

@@ -1,0 +1,1 @@
+<view id="article"><view><text id="post_title">{{a}}</text></view><view id="post_cover"> 图片 </view><view id="post_content"><text>{{b}}</text></view></view>

@@ -14,6 +14,61 @@ function makeMap(str, expectsLowerCase) {
   }
   return expectsLowerCase ? (val) => !!map[val.toLowerCase()] : (val) => !!map[val];
 }
+<<<<<<< HEAD
+function normalizeStyle(value) {
+  if (isArray(value)) {
+    const res = {};
+    for (let i = 0; i < value.length; i++) {
+      const item = value[i];
+      const normalized = isString(item) ? parseStringStyle(item) : normalizeStyle(item);
+      if (normalized) {
+        for (const key in normalized) {
+          res[key] = normalized[key];
+        }
+      }
+    }
+    return res;
+  } else if (isString(value)) {
+    return value;
+  } else if (isObject(value)) {
+    return value;
+  }
+}
+const listDelimiterRE = /;(?![^(]*\))/g;
+const propertyDelimiterRE = /:([^]+)/;
+const styleCommentRE = /\/\*.*?\*\//gs;
+function parseStringStyle(cssText) {
+  const ret = {};
+  cssText.replace(styleCommentRE, "").split(listDelimiterRE).forEach((item) => {
+    if (item) {
+      const tmp = item.split(propertyDelimiterRE);
+      tmp.length > 1 && (ret[tmp[0].trim()] = tmp[1].trim());
+    }
+  });
+  return ret;
+}
+function normalizeClass(value) {
+  let res = "";
+  if (isString(value)) {
+    res = value;
+  } else if (isArray(value)) {
+    for (let i = 0; i < value.length; i++) {
+      const normalized = normalizeClass(value[i]);
+      if (normalized) {
+        res += normalized + " ";
+      }
+    }
+  } else if (isObject(value)) {
+    for (const name in value) {
+      if (value[name]) {
+        res += name + " ";
+      }
+    }
+  }
+  return res.trim();
+}
+=======
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
 const toDisplayString = (val) => {
   return isString(val) ? val : val == null ? "" : isArray(val) || isObject(val) && (val.toString === objectToString || !isFunction(val.toString)) ? JSON.stringify(val, replacer, 2) : String(val);
 };
@@ -104,8 +159,13 @@ const def = (obj, key, value) => {
   });
 };
 const looseToNumber = (val) => {
+<<<<<<< HEAD
+  const n2 = parseFloat(val);
+  return isNaN(n2) ? val : n2;
+=======
   const n = parseFloat(val);
   return isNaN(n) ? val : n;
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
 };
 const LINEFEED = "\n";
 const SLOT_DEFAULT_NAME = "d";
@@ -927,7 +987,11 @@ const $off = defineSyncApi(API_OFF, (name, callback) => {
   }
   if (!isArray(name))
     name = [name];
+<<<<<<< HEAD
+  name.forEach((n2) => emitter.off(n2, callback));
+=======
   name.forEach((n) => emitter.off(n, callback));
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
 }, OffProtocol);
 const $emit = defineSyncApi(API_EMIT, (name, ...args) => {
   emitter.emit(name, ...args);
@@ -1214,8 +1278,13 @@ function populateParameters(fromRes, toRes) {
     appVersion: "1.0.0",
     appVersionCode: "100",
     appLanguage: getAppLanguage(hostLanguage),
+<<<<<<< HEAD
+    uniCompileVersion: "3.96",
+    uniRuntimeVersion: "3.96",
+=======
     uniCompileVersion: "3.95",
     uniRuntimeVersion: "3.95",
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
     uniPlatform: "mp-weixin",
     deviceBrand,
     deviceModel: model,
@@ -2384,6 +2453,12 @@ function isShallow(value) {
     /* ReactiveFlags.IS_SHALLOW */
   ]);
 }
+<<<<<<< HEAD
+function isProxy(value) {
+  return isReactive(value) || isReadonly(value);
+}
+=======
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
 function toRaw(observed) {
   const raw = observed && observed[
     "__v_raw"
@@ -2819,8 +2894,13 @@ const resolvedPromise = /* @__PURE__ */ Promise.resolve();
 let currentFlushPromise = null;
 const RECURSION_LIMIT = 100;
 function nextTick$1(fn) {
+<<<<<<< HEAD
+  const p2 = currentFlushPromise || resolvedPromise;
+  return fn ? p2.then(this ? fn.bind(this) : fn) : p2;
+=======
   const p = currentFlushPromise || resolvedPromise;
   return fn ? p.then(this ? fn.bind(this) : fn) : p;
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
 }
 function findInsertionIndex(id) {
   let start = flushIndex + 1;
@@ -3233,8 +3313,13 @@ function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EM
       warn(`watch() "deep" option is only respected when using the watch(source, callback, options?) signature.`);
     }
   }
+<<<<<<< HEAD
+  const warnInvalidSource = (s2) => {
+    warn(`Invalid watch source: `, s2, `A watch source can only be a getter/effect function, a ref, a reactive object, or an array of these types.`);
+=======
   const warnInvalidSource = (s) => {
     warn(`Invalid watch source: `, s, `A watch source can only be a getter/effect function, a ref, a reactive object, or an array of these types.`);
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
   };
   const instance = getCurrentScope() === (currentInstance === null || currentInstance === void 0 ? void 0 : currentInstance.scope) ? currentInstance : null;
   let getter;
@@ -3248,6 +3333,17 @@ function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EM
     deep = true;
   } else if (isArray(source)) {
     isMultiSource = true;
+<<<<<<< HEAD
+    forceTrigger = source.some((s2) => isReactive(s2) || isShallow(s2));
+    getter = () => source.map((s2) => {
+      if (isRef(s2)) {
+        return s2.value;
+      } else if (isReactive(s2)) {
+        return traverse(s2);
+      } else if (isFunction(s2)) {
+        return callWithErrorHandling(
+          s2,
+=======
     forceTrigger = source.some((s) => isReactive(s) || isShallow(s));
     getter = () => source.map((s) => {
       if (isRef(s)) {
@@ -3257,12 +3353,17 @@ function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EM
       } else if (isFunction(s)) {
         return callWithErrorHandling(
           s,
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
           instance,
           2
           /* ErrorCodes.WATCH_GETTER */
         );
       } else {
+<<<<<<< HEAD
+        warnInvalidSource(s2);
+=======
         warnInvalidSource(s);
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
       }
     });
   } else if (isFunction(source)) {
@@ -3617,9 +3718,15 @@ const PublicInstanceProxyHandlers = {
     }
     let normalizedProps;
     if (key[0] !== "$") {
+<<<<<<< HEAD
+      const n2 = accessCache[key];
+      if (n2 !== void 0) {
+        switch (n2) {
+=======
       const n = accessCache[key];
       if (n !== void 0) {
         switch (n) {
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
           case 1:
             return setupState[key];
           case 2:
@@ -4719,6 +4826,15 @@ const Static = Symbol("Static");
 function isVNode(value) {
   return value ? value.__v_isVNode === true : false;
 }
+<<<<<<< HEAD
+const InternalObjectKey = `__vInternal`;
+function guardReactiveProps(props) {
+  if (!props)
+    return null;
+  return isProxy(props) || InternalObjectKey in props ? extend({}, props) : props;
+}
+=======
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
 const emptyAppContext = createAppContext();
 let uid = 0;
 function createComponentInstance(vnode, parent, suspense) {
@@ -5755,6 +5871,14 @@ function initApp(app) {
   }
 }
 const propsCaches = /* @__PURE__ */ Object.create(null);
+<<<<<<< HEAD
+function renderProps(props) {
+  const { uid: uid2, __counter } = getCurrentInstance();
+  const propsId = (propsCaches[uid2] || (propsCaches[uid2] = [])).push(guardReactiveProps(props)) - 1;
+  return uid2 + "," + propsId + "," + __counter;
+}
+=======
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
 function pruneComponentPropsCache(uid2) {
   delete propsCaches[uid2];
 }
@@ -5916,10 +6040,36 @@ function vFor(source, renderItem) {
   }
   return ret;
 }
+<<<<<<< HEAD
+function stringifyStyle(value) {
+  if (isString(value)) {
+    return value;
+  }
+  return stringify(normalizeStyle(value));
+}
+function stringify(styles) {
+  let ret = "";
+  if (!styles || isString(styles)) {
+    return ret;
+  }
+  for (const key in styles) {
+    ret += `${key.startsWith(`--`) ? key : hyphenate(key)}:${styles[key]};`;
+  }
+  return ret;
+}
+const o = (value, key) => vOn(value, key);
+const f = (source, renderItem) => vFor(source, renderItem);
+const s = (value) => stringifyStyle(value);
+const e = (target, ...sources) => extend(target, ...sources);
+const n = (value) => normalizeClass(value);
+const t = (val) => toDisplayString(val);
+const p = (props) => renderProps(props);
+=======
 const o = (value, key) => vOn(value, key);
 const f = (source, renderItem) => vFor(source, renderItem);
 const e = (target, ...sources) => extend(target, ...sources);
 const t = (val) => toDisplayString(val);
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
 function createApp$1(rootComponent, rootProps = null) {
   rootComponent && (rootComponent.mpType = "app");
   return createVueApp(rootComponent, rootProps).use(plugin);
@@ -6748,6 +6898,14 @@ exports.createSSRApp = createSSRApp;
 exports.e = e;
 exports.f = f;
 exports.index = index;
+<<<<<<< HEAD
+exports.n = n;
+exports.o = o;
+exports.p = p;
+exports.resolveComponent = resolveComponent;
+exports.s = s;
+=======
 exports.o = o;
 exports.resolveComponent = resolveComponent;
+>>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
 exports.t = t;

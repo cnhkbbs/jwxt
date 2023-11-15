@@ -1,0 +1,15 @@
+
+.item_icon {
+		display: inline-block;
+		width: 5rem;
+}
+.grid-item {
+		width: 5.33rem;
+		margin-left: 0.1rem;
+		margin-right: 0.1rem;
+}
+.banner,
+	.banner image {
+		width: 760rpx;
+		height: 500rpx;
+}

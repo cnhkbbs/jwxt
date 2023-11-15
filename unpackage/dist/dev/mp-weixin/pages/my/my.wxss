@@ -1,0 +1,9 @@
+
+.item_icon1 {
+		width: 100%;
+		height: 10rem;
+}
+.mb-10 {
+		margin-top: 1rem;
+		margin-bottom: 10px;
+}
