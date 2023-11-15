@@ -25,7 +25,6 @@
 			"style": {
 				"navigationBarTitleText": "轮播图"
 			}
-<<<<<<< HEAD
 		},
 		{
 			"path" : "pages/postpage/postpage",
@@ -55,8 +54,6 @@
 			{
 				"navigationBarTitleText" : ""
 			}
-=======
->>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
 		}
 	],
 	"globalStyle": {
@@ -74,15 +71,12 @@
 				"selectedIconPath": "static/home-2-fill.png"
 			},
 			{
-<<<<<<< HEAD
 				"pagePath": "pages/fun/fun",
 				"text": "功能",
 				"iconPath": "static/user-3-line.png",
 				"selectedIconPath": "static/user-3-fill.png"
 			},
 			{
-=======
->>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
 				"pagePath": "pages/my/my",
 				"text": "我的",
 				"iconPath": "static/user-3-line.png",

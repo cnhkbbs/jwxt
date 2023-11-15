@@ -1,5 +1,4 @@
 <template>
-<<<<<<< HEAD
 	<view class="login_box">
 		<image class="item_icon1" src="../../static/logo.png" mode="" @click="goToGradesPage()()"></image>
 	</view>
@@ -44,17 +43,12 @@
 				right slot
 			</template>
 		</uni-section>
-=======
-	<view>
-		<a>我的</a>
->>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
 	</view>
 </template>
 
 <script>
 	export default {
 		data() {
-<<<<<<< HEAD
 			return {}
 		},
 		methods: {
@@ -68,20 +62,11 @@
 					url: '/pages/course/course',
 				});
 			}
-=======
-			return {
-				
-			}
-		},
-		methods: {
-			
->>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
 		}
 	}
 </script>
 
 <style>
-<<<<<<< HEAD
 	.item_icon1 {
 		width: 100%;
 		height: 10rem;
@@ -92,7 +77,3 @@
 		margin-bottom: 10px;
 	}
 </style>
-=======
-
-</style>
->>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
