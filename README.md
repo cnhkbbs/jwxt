@@ -43,3 +43,8 @@ CSS样式
 ```
 .post-title
 ```
+
+### 素材版权
+图标来自 remixicon  https://remixicon.com/
+
+插画 manypixels  https://www.manypixels.co/
