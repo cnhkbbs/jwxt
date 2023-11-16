@@ -144,9 +144,7 @@
 		},
 		methods: {
 			buttonClick(hour, minute, second, button_num) {
-				this.
-				
-				selected_button_num = button_num;
+				this.selected_button_num = button_num;
 				this.count_down_hour = hour;
 				this.count_down_second = second;
 				this.count_down_minute = minute;
