@@ -21,6 +21,9 @@ git clone https://github.com/cnhkbbs/jwxt.git
 
 图标下载地址 https://remixicon.com/icon/message-3-line
 
+按钮颜色 dodgerblue
+
+组件圆角 border-radius: 25%;
 ### 代码风格
 函数名统一小驼峰写法
 ```
@@ -33,4 +36,10 @@ getUserName()
 
 ```
 post_title = '文章标题'
+```
+
+CSS样式
+
+```
+.post-title
 ```
