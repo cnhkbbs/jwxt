@@ -1,6 +1,6 @@
 <template>
 	<view class="charts-box" v-show="show_time_charts">
-		<qiun-data-charts type="arcbar" :opts="opts" :chartData="chartData" :canvas2d="true" :animation="false"
+		<qiun-data-charts type="arcbar" :opts="opts" :chartData="chartData" :canvas2d="true" :animation="false" :optsWatch = "false"
 			canvasId="dXCwXFYykPudbpnyTCNtzAzQIuVstsYo" />
 		<view id="count-down-table">
 			<view class="count-down-number">
@@ -113,7 +113,30 @@
 						}
 					]
 				},
-				opts: {}
+				opts: {
+					update: false,
+					color: ["#1890FF", "#91CB74", "#FAC858"],
+					title: {
+						name: "专注",
+						fontSize: 38,
+						color: "#1890ff"
+					},
+					subtitle: {
+						name: "是成功的关键",
+						fontSize: 15,
+						color: "#666666"
+					},
+					extra: {
+						arcbar: {
+							type: "circle",
+							width: 16,
+							backgroundColor: "#E9E9E9",
+							startAngle: 1.5,
+							endAngle: 0.25,
+							gap: 5
+						}
+					}
+				}
 			};
 		},
 		onShow() {
@@ -121,7 +144,9 @@
 		},
 		methods: {
 			buttonClick(hour, minute, second, button_num) {
-				this.selected_button_num = button_num;
+				this.
+				
+				selected_button_num = button_num;
 				this.count_down_hour = hour;
 				this.count_down_second = second;
 				this.count_down_minute = minute;
@@ -257,7 +282,7 @@
 	.charts-box {
 		margin-top: 3%;
 		width: 100%;
-		height: 300px;
+		height: auto;
 	}
 
 	.time-setting-box {
