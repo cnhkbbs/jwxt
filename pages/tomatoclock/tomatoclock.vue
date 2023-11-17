@@ -1,7 +1,7 @@
 <template>
-	<view class="charts-box" v-show="show_time_charts">
-		<qiun-data-charts type="arcbar" :opts="opts" :chartData="chartData" :canvas2d="true" :animation="false" :optsWatch = "false"
-			canvasId="dXCwXFYykPudbpnyTCNtzAzQIuVstsYo" />
+	<view class="charts-box">
+		<qiun-data-charts type="arcbar" :opts="opts" :chartData="chartData" :canvas2d="true" :animation="show_chart_animation" 
+			canvasId="dXCwXFYykPudbpnyTCNtzAzQIuVstsYo" v-show="!show_set_time_box"/>
 		<view id="count-down-table">
 			<view class="count-down-number">
 				{{remaining_hour}}
@@ -23,7 +23,7 @@
 			放弃
 		</view>
 	</view>
-	<uni-transition mode-class="slide-top" :show="show_set_time_box">
+	<uni-transition mode-class="slide-top" :show="show_set_time_box" id="set-time-box">
 		<view class="time-setting">
 			<uni-row>
 				<uni-col>
@@ -91,13 +91,15 @@
 				count_down_hour: 0,
 				count_down_minute: 25,
 				count_down_second: 0,
+				
 				remaining_hour: 0,
 				remaining_minute: 0,
 				remaining_second: 0,
+				
 				timer: null,
 				selected_button_num: 0,
 				show_set_time_box: true,
-				show_time_charts: false,
+				show_chart_animation: true,
 				chartData: {
 					series: [{
 							name: "时",
@@ -150,35 +152,31 @@
 				this.count_down_minute = minute;
 			},
 			countDownStart() {
-				this.opts = {
-					update: true,
-					color: ["#1890FF", "#91CB74", "#FAC858"],
-					title: {
-						name: "专注",
-						fontSize: 38,
-						color: "#1890ff"
-					},
-					subtitle: {
-						name: "是成功的关键",
-						fontSize: 15,
-						color: "#666666"
-					},
-					extra: {
-						arcbar: {
-							type: "circle",
-							width: 16,
-							backgroundColor: "#E9E9E9",
-							startAngle: 1.5,
-							endAngle: 0.25,
-							gap: 5
+				//加载第一帧数据
+				let res = {
+					series: [{
+							name: "秒",
+							data: 1
+						},
+						{
+							name: "分",
+							data: 1
+						},
+						{
+							name: "时",
+							data: 1
 						}
-					}
+					]
 				};
+				this.chartData = res;
+				setTimeout(() =>{
+					this.changeChartStatues();
+				},1000);
 				this.show_set_time_box = !this.show_set_time_box;
-				this.show_time_charts = !this.show_time_charts;
 				this.remaining_hour = this.count_down_hour;
 				this.remaining_minute = this.count_down_minute;
 				this.remaining_second = this.count_down_second;
+				
 				if (this.timer) {
 					clearInterval(this.timer)
 					this.timer = null
@@ -188,36 +186,15 @@
 				}, 1000)
 			},
 			countDownStop() {
-				this.opts = {
-					update: false,
-					color: ["#1890FF", "#91CB74", "#FAC858"],
-					title: {
-						name: "专注",
-						fontSize: 38,
-						color: "#1890ff"
-					},
-					subtitle: {
-						name: "是成功的关键",
-						fontSize: 15,
-						color: "#666666"
-					},
-					extra: {
-						arcbar: {
-							type: "circle",
-							width: 16,
-							backgroundColor: "#E9E9E9",
-							startAngle: 1.5,
-							endAngle: 0.25,
-							gap: 5
-						}
-					}
-				};
 				console.log('计时结束');
 				clearInterval(this.timer);
 				this.timer = null;
-				this.show_time_charts = !this.show_time_charts;
 				this.show_set_time_box = !this.show_set_time_box;
-
+				this.changeChartStatues();
+			},
+			changeChartStatues(){
+				this.opts['update'] = !this.opts['update'];
+				this.show_chart_animation = !this.show_chart_animation;
 			},
 			updateCountdown() {
 				if (this.remaining_second > 0) {
@@ -232,6 +209,9 @@
 							this.remaining_minute = 59;
 							this.remaining_second = 59;
 						} else {
+							uni.showToast({
+								title: '时间到'
+							})
 							console.log('计时结束');
 							clearInterval(this.timer);
 							this.timer = null;
@@ -263,10 +243,6 @@
 </script>
 
 <style>
-	uni-number-box {
-		display: inline-block;
-	}
-
 	#time-setting-title-box {
 		margin: 10% auto;
 		width: 100%;
@@ -276,11 +252,19 @@
 	#time-setting-title {
 		font-size: 150%;
 	}
+	#set-time-box{
+		z-index: 999;
+		float: left;
+		background-color: white;
+	}
 
 	.charts-box {
 		margin-top: 3%;
 		width: 100%;
 		height: auto;
+		position: fixed;
+		z-index: -1;
+		text-align: center;
 	}
 
 	.time-setting-box {
