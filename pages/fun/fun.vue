@@ -10,20 +10,28 @@
 		<uni-section title="功能一览" type="line" padding>
 			<uni-grid :column="4">
 				<uni-grid-item class="grid-item">
-					<image class="item_icon" src="../../static/logo.png" mode="" @click="goToGradesPage()()"></image>
+					<image class="item_icon" src="../../static/grades.png" mode="" @click="goToGradesPage()"></image>
 					<text class="text">成绩查询</text>
+				</uni-grid-item>
+				<uni-grid-item class="grid-item">
+					<image class="item_icon" src="../../static/grades-analysis.png" mode="" @click="goToCoursePage()"></image>
+					<text class="text">课表查询</text>
+				</uni-grid-item>
+				<uni-grid-item class="grid-item">
+					<image class="item_icon" src="../../static/conversation.png" mode="" @click="goToCoursePage()"></image>
+					<text class="text">功能1</text>
+				</uni-grid-item>
+			</uni-grid>
+		</uni-section>
+		<uni-section title="其他功能" type="line" padding>
+			<uni-grid :column="4">
+				<uni-grid-item class="grid-item">
+					<image class="item_icon" src="../../static/tomato-clock.png" mode="" @click="goToTomatoClockPage"></image>
+					<text class="text">番茄钟</text>
 				</uni-grid-item>
 				<uni-grid-item class="grid-item">
 					<image class="item_icon" src="../../static/logo.png" mode="" @click="goToCoursePage()"></image>
 					<text class="text">课表查询</text>
-				</uni-grid-item>
-				<uni-grid-item class="grid-item">
-					<image class="item_icon" src="../../static/logo.png" mode="" @click="goToCoursePage()"></image>
-					<text class="text">功能1</text>
-				</uni-grid-item>
-				<uni-grid-item class="grid-item">
-					<image class="item_icon" src="../../static/logo.png" mode="" @click="goToCoursePage()"></image>
-					<text class="text">功能2</text>
 				</uni-grid-item>
 			</uni-grid>
 		</uni-section>
@@ -72,6 +80,11 @@
 				uni.navigateTo({
 					url: '/pages/course/course',
 				});
+			},
+			goToTomatoClockPage() {
+				uni.navigateTo({
+					url: '/pages/tomatoclock/tomatoclock'
+				})
 			},
 			onPreviewImage(url) {
 				uni.previewImage({

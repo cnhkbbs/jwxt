@@ -12,8 +12,22 @@
 			this.getPostList();
 		},
 		onLoad() {
-
-		},
+			
+			uni.getStorage({
+				key:'token',
+				success:function(res){
+					console.log(res.data);
+				},
+				fail: (res) => {
+					uni.navigateTo({
+						url:'/pages/login/login'
+					})
+				}
+			})
+			// uni.navigateTo({
+			// 	url:'/pages/login/login'
+			// })
+		}, 
 		data() {
 			return {
 				postList: []

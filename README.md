@@ -24,6 +24,8 @@ git clone https://github.com/cnhkbbs/jwxt.git
 按钮颜色 dodgerblue
 
 组件圆角 border-radius: 25%;
+
+功能模块菜单图标大小 625x625像素
 ### 代码风格
 函数名统一小驼峰写法
 ```

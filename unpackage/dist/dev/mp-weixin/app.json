@@ -2,15 +2,13 @@
   "pages": [
     "pages/index/index",
     "pages/my/my",
-<<<<<<< HEAD
-    "pages/swiper/swiper",
     "pages/postpage/postpage",
     "pages/fun/fun",
     "pages/grades/grades",
-    "pages/course/course"
-=======
-    "pages/swiper/swiper"
->>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
+    "pages/course/course",
+    "pages/login/login",
+    "pages/tomatoclock/tomatoclock",
+    "pages/pages_template/pages_template"
   ],
   "window": {
     "navigationBarTextStyle": "black",
@@ -28,23 +26,16 @@
         "selectedIconPath": "static/home-2-fill.png"
       },
       {
-<<<<<<< HEAD
         "pagePath": "pages/fun/fun",
         "text": "功能",
-        "iconPath": "static/user-3-line.png",
-        "selectedIconPath": "static/user-3-fill.png"
+        "iconPath": "static/apps-2-line.png",
+        "selectedIconPath": "static/apps-2-fill.png"
       },
       {
-=======
->>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7
         "pagePath": "pages/my/my",
         "text": "我的",
         "iconPath": "static/user-3-line.png",
         "selectedIconPath": "static/user-3-fill.png"
-      },
-      {
-        "pagePath": "pages/swiper/swiper",
-        "text": "轮播图"
       }
     ]
   },

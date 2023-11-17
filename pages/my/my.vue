@@ -61,6 +61,14 @@
 				uni.navigateTo({
 					url: '/pages/course/course',
 				});
+			},
+			userLogout() {
+				uni.removeStorage({
+					key: 'token',
+					success: function(res) {
+						console.log('success');
+					}
+				});
 			}
 		}
 	}

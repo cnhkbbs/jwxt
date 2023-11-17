@@ -8,6 +8,10 @@
 		},
 		onHide: function() {
 			console.log('App Hide')
+		},
+		// 全局变量
+		globalData:{
+			host_url: 'http://127.0.0.1:5000/'
 		}
 	}
 </script>

@@ -42,6 +42,11 @@ const _sfc_main = {
         url: "/pages/course/course"
       });
     },
+    goToTomatoClockPage() {
+      common_vendor.index.navigateTo({
+        url: "/pages/tomatoclock/tomatoclock"
+      });
+    },
     onPreviewImage(url) {
       common_vendor.index.previewImage({
         urls: this.pictures.map((v) => v.url),
@@ -71,19 +76,28 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
         c: item.id
       };
     }),
-    b: common_vendor.o(($event) => $options.goToGradesPage()()),
+    b: common_vendor.o(($event) => $options.goToGradesPage()),
     c: common_vendor.o(($event) => $options.goToCoursePage()),
     d: common_vendor.o(($event) => $options.goToCoursePage()),
-    e: common_vendor.o(($event) => $options.goToCoursePage()),
-    f: common_vendor.p({
+    e: common_vendor.p({
       column: 4
     }),
-    g: common_vendor.p({
+    f: common_vendor.p({
       title: "功能一览",
+      type: "line",
+      padding: true
+    }),
+    g: common_vendor.o((...args) => $options.goToTomatoClockPage && $options.goToTomatoClockPage(...args)),
+    h: common_vendor.o(($event) => $options.goToCoursePage()),
+    i: common_vendor.p({
+      column: 4
+    }),
+    j: common_vendor.p({
+      title: "其他功能",
       type: "line",
       padding: true
     })
   };
 }
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "D:/HBuilderProjects/jwxt/pages/fun/fun.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "C:/Users/acer/Desktop/temp/pages/fun/fun.vue"]]);
 wx.createPage(MiniProgramPage);

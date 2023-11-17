@@ -1,5 +1,1 @@
-<<<<<<< HEAD
 <view><uni-card wx:for="{{a}}" wx:for-item="item" wx:key="b" u-s="{{['d']}}" bindclick="{{item.c}}" u-i="{{item.d}}" bind:__l="__l" u-p="{{item.e}}"><text class="uni-body">{{item.a}}</text></uni-card></view>
-=======
-<uni-card wx:for="{{a}}" wx:for-item="item" wx:key="b" u-s="{{['d']}}" u-i="{{item.c}}" bind:__l="__l"><text>这是一个基础卡片示例，内容较少，此示例展示了一个没有任何属性不带阴影的卡片。{{item.a}}</text></uni-card>
->>>>>>> 98e8539665192c3b40d2041a68497eacddd1e3b7

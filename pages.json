@@ -21,12 +21,6 @@
 			}
 		},
 		{
-			"path": "pages/swiper/swiper",
-			"style": {
-				"navigationBarTitleText": "轮播图"
-			}
-		},
-		{
 			"path" : "pages/postpage/postpage",
 			"style" : 
 			{
@@ -54,15 +48,31 @@
 			{
 				"navigationBarTitleText" : ""
 			}
-		},
-		{
-			"path" : "pages/tomatoclock/tomatoclock",
-			"style" : 
-			{
-				"navigationBarTitleText" : "番茄钟"
-			}
 		}
-	],
+        ,{
+            "path" : "pages/login/login",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        },
+        {
+        	"path" : "pages/tomatoclock/tomatoclock",
+        	"style" : 
+        	{
+        		"navigationBarTitleText" : "番茄钟"
+        	}
+        },
+        {
+        	"path" : "pages/pages_template/pages_template",
+        	"style" : 
+        	{
+        		"navigationBarTitleText" : "页面模板"
+        	}
+        }
+    ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",
@@ -80,20 +90,27 @@
 			{
 				"pagePath": "pages/fun/fun",
 				"text": "功能",
-				"iconPath": "static/user-3-line.png",
-				"selectedIconPath": "static/user-3-fill.png"
+				"iconPath": "static/apps-2-line.png",
+				"selectedIconPath": "static/apps-2-fill.png"
 			},
 			{
 				"pagePath": "pages/my/my",
+				
 				"text": "我的",
 				"iconPath": "static/user-3-line.png",
 				"selectedIconPath": "static/user-3-fill.png"
-			},
-			{
-				"pagePath": "pages/swiper/swiper",
-				"text": "轮播图"
 			}
 		]
 	},
-	"uniIdRouter": {}
+	"uniIdRouter": {},
+	"condition" : { //模式配置，仅开发期间生效
+		"current": 0, //当前激活的模式(list 的索引项)
+		"list": [
+			{
+				"name": "", //模式名称
+				"path": "", //启动页面，必选
+				"query": "" //启动参数，在页面的onLoad函数里面得到
+			}
+		]
+	}
 }
