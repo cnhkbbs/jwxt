@@ -3,6 +3,7 @@ const common_vendor = require("../../common/vendor.js");
 const _sfc_main = {
   data() {
     return {
+      role: "1",
       pictures: [
         {
           id: "1",
@@ -31,11 +32,28 @@ const _sfc_main = {
       ]
     };
   },
+  onShow() {
+    common_vendor.index.getStorage({
+      key: "role",
+      success: (res) => {
+        this.role = res.data;
+      },
+      fail: (res) => {
+        console.log("read role fail");
+      }
+    });
+  },
   methods: {
     goToGradesPage() {
-      common_vendor.index.navigateTo({
-        url: "/pages/grades/grades"
-      });
+      if (this.role === "1") {
+        common_vendor.index.navigateTo({
+          url: "/pages/grades/grades"
+        });
+      } else {
+        common_vendor.index.navigateTo({
+          url: "/pages/studentlist/studentlist?refer=grades"
+        });
+      }
     },
     goToCoursePage() {
       common_vendor.index.navigateTo({
@@ -46,6 +64,22 @@ const _sfc_main = {
       common_vendor.index.navigateTo({
         url: "/pages/tomatoclock/tomatoclock"
       });
+    },
+    goToVisitorRegistrationPage() {
+      common_vendor.index.navigateTo({
+        url: "/pages/visitorregistration/visitorregistration"
+      });
+    },
+    goToGradesAnalysisPage() {
+      if (this.role === "1") {
+        common_vendor.index.navigateTo({
+          url: "/pages/gradesanalysis/gradesanalysis"
+        });
+      } else {
+        common_vendor.index.navigateTo({
+          url: "/pages/studentlist/studentlist?refer=analysis"
+        });
+      }
     },
     onPreviewImage(url) {
       common_vendor.index.previewImage({
@@ -76,28 +110,28 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
         c: item.id
       };
     }),
-    b: common_vendor.o(($event) => $options.goToGradesPage()),
-    c: common_vendor.o(($event) => $options.goToCoursePage()),
-    d: common_vendor.o(($event) => $options.goToCoursePage()),
+    b: common_vendor.o((...args) => $options.goToGradesPage && $options.goToGradesPage(...args)),
+    c: common_vendor.o((...args) => $options.goToCoursePage && $options.goToCoursePage(...args)),
+    d: common_vendor.o((...args) => $options.goToGradesAnalysisPage && $options.goToGradesAnalysisPage(...args)),
     e: common_vendor.p({
       column: 4
     }),
     f: common_vendor.p({
-      title: "功能一览",
+      title: "我的服务",
       type: "line",
       padding: true
     }),
     g: common_vendor.o((...args) => $options.goToTomatoClockPage && $options.goToTomatoClockPage(...args)),
-    h: common_vendor.o(($event) => $options.goToCoursePage()),
+    h: common_vendor.o((...args) => $options.goToVisitorRegistrationPage && $options.goToVisitorRegistrationPage(...args)),
     i: common_vendor.p({
       column: 4
     }),
     j: common_vendor.p({
-      title: "其他功能",
+      title: "其他服务",
       type: "line",
       padding: true
     })
   };
 }
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "C:/Users/acer/Desktop/temp/pages/fun/fun.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "E:/vue/jwxt/pages/fun/fun.vue"]]);
 wx.createPage(MiniProgramPage);

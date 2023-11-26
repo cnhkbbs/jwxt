@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "成绩分析",
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "qiun-data-charts": "../../uni_modules/qiun-data-charts/components/qiun-data-charts/qiun-data-charts",
+    "uni-data-select": "../../uni_modules/uni-data-select/components/uni-data-select/uni-data-select"
+  }
+}

@@ -1,0 +1,6 @@
+
+.list-item{
+		width: 90vw;
+		border: red solid;
+		margin: 12rpx;
+}

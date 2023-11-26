@@ -1,1 +1,1 @@
-<view id="article"><view><text id="post_title">{{a}}</text></view><view id="post_cover"> 图片 </view><view id="post_content"><text>{{b}}</text></view></view>
+<view id="article"><view class="post-title-box"><text class="post-title-text">{{a}}</text><text style="font-size:80%;color:darkgray">{{b}}</text></view><view id="post-cover"><image style="width:100%;height:65vw" src="{{c}}"></image></view><view id="post-content"><text class="post-content-text">{{d}}</text></view></view>

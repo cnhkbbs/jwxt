@@ -94,8 +94,16 @@
 											data: data.token
 										});
 										uni.setStorage({
-											key: 'token',
-											data: data.token
+											key: 'username',
+											data: this.formData.username
+										});
+										uni.setStorage({
+											key: 'role',
+											data: data.role
+										});
+										uni.setStorage({
+											key: 'name',
+											data: data.name
 										});
 										uni.switchTab({
 											url: '/pages/index/index'

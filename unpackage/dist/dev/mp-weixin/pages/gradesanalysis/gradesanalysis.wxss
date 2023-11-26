@@ -1,0 +1,8 @@
+
+.charts {
+		width: 100vw;
+}
+.select-item {
+		width: 100vw;
+		height: 50vh;
+}

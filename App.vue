@@ -11,7 +11,7 @@
 		},
 		// 全局变量
 		globalData:{
-			host_url: 'http://127.0.0.1:5000/'
+			host_url: 'https://api.sboxm.link/'
 		}
 	}
 </script>

@@ -8,7 +8,14 @@
     "pages/course/course",
     "pages/login/login",
     "pages/tomatoclock/tomatoclock",
-    "pages/pages_template/pages_template"
+    "pages/campusmap/campusmap",
+    "pages/feedback/feedback",
+    "pages/about/about",
+    "pages/message/message",
+    "pages/visitorregistration/visitorregistration",
+    "pages/gradesanalysis/gradesanalysis",
+    "pages/userinfo/userinfo",
+    "pages/studentlist/studentlist"
   ],
   "window": {
     "navigationBarTextStyle": "black",
@@ -27,7 +34,7 @@
       },
       {
         "pagePath": "pages/fun/fun",
-        "text": "功能",
+        "text": "服务",
         "iconPath": "static/apps-2-line.png",
         "selectedIconPath": "static/apps-2-fill.png"
       },
@@ -39,5 +46,6 @@
       }
     ]
   },
+  "permission": {},
   "usingComponents": {}
 }
