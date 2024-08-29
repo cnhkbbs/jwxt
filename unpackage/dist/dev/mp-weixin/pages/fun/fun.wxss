@@ -1,15 +1,32 @@
 
-.item_icon {
+.top-image-box {
+		margin: 0 auto;
+		width: 90vw;
+		height: 50vw;
+		border-radius: 20rpx;
+		overflow: hidden;
+		box-shadow: 0 15rpx 15rpx rgba(0, 0, 0, 0.2);
+		margin-bottom: 10%;
+}
+.swiper-img {
+		width: 90vw;
+		height: 50vw;
+}
+.menu-button-box {
+		display: flex;
+		width: 100%;
+}
+.menu-button-icon {
 		display: inline-block;
-		width: 5rem;
+		width: 20%;
 }
-.grid-item {
-		width: 5.33rem;
-		margin-left: 0.1rem;
-		margin-right: 0.1rem;
+.menu-button-text {
+		display: inline-block;
+		width: 80%;
+		height: 15vw;
+		padding-top: 5vw;
 }
-.banner,
-	.banner image {
-		width: 760rpx;
-		height: 500rpx;
+.item-icon {
+		width: 15vw;
+		height: 15vw;
 }

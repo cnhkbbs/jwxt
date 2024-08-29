@@ -55,5 +55,5 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     e: `${Number($options.marginValue)}rpx`
   };
 }
-const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "C:/Users/acer/Desktop/temp/uni_modules/uni-row/components/uni-row/uni-row.vue"]]);
+const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "E:/vue/ycxy/uni_modules/uni-row/components/uni-row/uni-row.vue"]]);
 wx.createComponent(Component);

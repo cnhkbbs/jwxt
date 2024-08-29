@@ -61,18 +61,33 @@ ${this.formData.role}\r
                     data: data.token
                   });
                   common_vendor.index.setStorage({
-                    key: "token",
-                    data: data.token
+                    key: "username",
+                    data: this.formData.username
                   });
-                  common_vendor.index.switchTab({
-                    url: "/pages/index/index"
+                  common_vendor.index.setStorage({
+                    key: "role",
+                    data: data.role
                   });
+                  common_vendor.index.setStorage({
+                    key: "name",
+                    data: data.name
+                  });
+                  setTimeout(() => {
+                    common_vendor.index.switchTab({
+                      url: "/pages/index/index"
+                    });
+                  }, 1e3);
                 }
               }
             });
           }
         });
       }
+    },
+    goToIndexPage() {
+      common_vendor.index.switchTab({
+        url: "/pages/index/index"
+      });
     }
   }
 };
@@ -86,8 +101,9 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     f: common_vendor.o(($event) => $data.formData.username = $event.detail.value),
     g: $data.formData.password,
     h: common_vendor.o(($event) => $data.formData.password = $event.detail.value),
-    i: common_vendor.o((...args) => $options.submit && $options.submit(...args))
+    i: common_vendor.o((...args) => $options.submit && $options.submit(...args)),
+    j: common_vendor.o((...args) => $options.goToIndexPage && $options.goToIndexPage(...args))
   };
 }
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__scopeId", "data-v-e4e4508d"], ["__file", "C:/Users/acer/Desktop/temp/pages/login/login.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__scopeId", "data-v-e4e4508d"], ["__file", "E:/vue/ycxy/pages/login/login.vue"]]);
 wx.createPage(MiniProgramPage);

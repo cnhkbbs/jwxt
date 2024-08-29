@@ -59,6 +59,7 @@
 		margin: 0 auto;
 		margin-top: 5%;
 		font-size: 130%;
+		border-radius: 20rpx;
 		color: white;
 		text-align: center;
 		background-color: dodgerblue;

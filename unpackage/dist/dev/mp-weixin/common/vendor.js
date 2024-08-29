@@ -29,7 +29,7 @@ function normalizeStyle(value) {
     return res;
   } else if (isString(value)) {
     return value;
-  } else if (isObject(value)) {
+  } else if (isObject$1(value)) {
     return value;
   }
 }
@@ -57,7 +57,7 @@ function normalizeClass(value) {
         res += normalized + " ";
       }
     }
-  } else if (isObject(value)) {
+  } else if (isObject$1(value)) {
     for (const name in value) {
       if (value[name]) {
         res += name + " ";
@@ -67,7 +67,7 @@ function normalizeClass(value) {
   return res.trim();
 }
 const toDisplayString = (val) => {
-  return isString(val) ? val : val == null ? "" : isArray(val) || isObject(val) && (val.toString === objectToString || !isFunction(val.toString)) ? JSON.stringify(val, replacer, 2) : String(val);
+  return isString(val) ? val : val == null ? "" : isArray(val) || isObject$1(val) && (val.toString === objectToString || !isFunction(val.toString)) ? JSON.stringify(val, replacer, 2) : String(val);
 };
 const replacer = (_key, val) => {
   if (val && val.__v_isRef) {
@@ -83,7 +83,7 @@ const replacer = (_key, val) => {
     return {
       [`Set(${val.size})`]: [...val.values()]
     };
-  } else if (isObject(val) && !isArray(val) && !isPlainObject(val)) {
+  } else if (isObject$1(val) && !isArray(val) && !isPlainObject(val)) {
     return String(val);
   }
   return val;
@@ -103,17 +103,17 @@ const remove = (arr, el) => {
     arr.splice(i2, 1);
   }
 };
-const hasOwnProperty$1 = Object.prototype.hasOwnProperty;
-const hasOwn = (val, key) => hasOwnProperty$1.call(val, key);
+const hasOwnProperty$2 = Object.prototype.hasOwnProperty;
+const hasOwn$1 = (val, key) => hasOwnProperty$2.call(val, key);
 const isArray = Array.isArray;
 const isMap = (val) => toTypeString(val) === "[object Map]";
 const isSet = (val) => toTypeString(val) === "[object Set]";
 const isFunction = (val) => typeof val === "function";
 const isString = (val) => typeof val === "string";
 const isSymbol = (val) => typeof val === "symbol";
-const isObject = (val) => val !== null && typeof val === "object";
+const isObject$1 = (val) => val !== null && typeof val === "object";
 const isPromise = (val) => {
-  return isObject(val) && isFunction(val.then) && isFunction(val.catch);
+  return isObject$1(val) && isFunction(val.then) && isFunction(val.catch);
 };
 const objectToString = Object.prototype.toString;
 const toTypeString = (value) => objectToString.call(value);
@@ -168,6 +168,7 @@ const ON_ERROR = "onError";
 const ON_THEME_CHANGE = "onThemeChange";
 const ON_PAGE_NOT_FOUND = "onPageNotFound";
 const ON_UNHANDLE_REJECTION = "onUnhandledRejection";
+const ON_EXIT = "onExit";
 const ON_LOAD = "onLoad";
 const ON_READY = "onReady";
 const ON_UNLOAD = "onUnload";
@@ -284,6 +285,7 @@ const UniLifecycleHooks = [
   ON_THEME_CHANGE,
   ON_PAGE_NOT_FOUND,
   ON_UNHANDLE_REJECTION,
+  ON_EXIT,
   ON_INIT,
   ON_LOAD,
   ON_READY,
@@ -384,11 +386,96 @@ E$1.prototype = {
   }
 };
 var E$1$1 = E$1;
+const isObject = (val) => val !== null && typeof val === "object";
+const defaultDelimiters = ["{", "}"];
+class BaseFormatter {
+  constructor() {
+    this._caches = /* @__PURE__ */ Object.create(null);
+  }
+  interpolate(message, values, delimiters = defaultDelimiters) {
+    if (!values) {
+      return [message];
+    }
+    let tokens = this._caches[message];
+    if (!tokens) {
+      tokens = parse(message, delimiters);
+      this._caches[message] = tokens;
+    }
+    return compile$1(tokens, values);
+  }
+}
+const RE_TOKEN_LIST_VALUE = /^(?:\d)+/;
+const RE_TOKEN_NAMED_VALUE = /^(?:\w)+/;
+function parse(format, [startDelimiter, endDelimiter]) {
+  const tokens = [];
+  let position = 0;
+  let text = "";
+  while (position < format.length) {
+    let char = format[position++];
+    if (char === startDelimiter) {
+      if (text) {
+        tokens.push({ type: "text", value: text });
+      }
+      text = "";
+      let sub = "";
+      char = format[position++];
+      while (char !== void 0 && char !== endDelimiter) {
+        sub += char;
+        char = format[position++];
+      }
+      const isClosed = char === endDelimiter;
+      const type = RE_TOKEN_LIST_VALUE.test(sub) ? "list" : isClosed && RE_TOKEN_NAMED_VALUE.test(sub) ? "named" : "unknown";
+      tokens.push({ value: sub, type });
+    } else {
+      text += char;
+    }
+  }
+  text && tokens.push({ type: "text", value: text });
+  return tokens;
+}
+function compile$1(tokens, values) {
+  const compiled = [];
+  let index2 = 0;
+  const mode = Array.isArray(values) ? "list" : isObject(values) ? "named" : "unknown";
+  if (mode === "unknown") {
+    return compiled;
+  }
+  while (index2 < tokens.length) {
+    const token = tokens[index2];
+    switch (token.type) {
+      case "text":
+        compiled.push(token.value);
+        break;
+      case "list":
+        compiled.push(values[parseInt(token.value, 10)]);
+        break;
+      case "named":
+        if (mode === "named") {
+          compiled.push(values[token.value]);
+        } else {
+          {
+            console.warn(`Type of token '${token.type}' and format of value '${mode}' don't match!`);
+          }
+        }
+        break;
+      case "unknown":
+        {
+          console.warn(`Detect 'unknown' type of token!`);
+        }
+        break;
+    }
+    index2++;
+  }
+  return compiled;
+}
 const LOCALE_ZH_HANS = "zh-Hans";
 const LOCALE_ZH_HANT = "zh-Hant";
 const LOCALE_EN = "en";
 const LOCALE_FR = "fr";
 const LOCALE_ES = "es";
+const hasOwnProperty$1 = Object.prototype.hasOwnProperty;
+const hasOwn = (val, key) => hasOwnProperty$1.call(val, key);
+const defaultFormatter = new BaseFormatter();
 function include(str, parts) {
   return !!parts.find((part) => str.indexOf(part) !== -1);
 }
@@ -428,6 +515,161 @@ function normalizeLocale(locale, messages) {
     return lang;
   }
 }
+class I18n {
+  constructor({ locale, fallbackLocale, messages, watcher, formater }) {
+    this.locale = LOCALE_EN;
+    this.fallbackLocale = LOCALE_EN;
+    this.message = {};
+    this.messages = {};
+    this.watchers = [];
+    if (fallbackLocale) {
+      this.fallbackLocale = fallbackLocale;
+    }
+    this.formater = formater || defaultFormatter;
+    this.messages = messages || {};
+    this.setLocale(locale || LOCALE_EN);
+    if (watcher) {
+      this.watchLocale(watcher);
+    }
+  }
+  setLocale(locale) {
+    const oldLocale = this.locale;
+    this.locale = normalizeLocale(locale, this.messages) || this.fallbackLocale;
+    if (!this.messages[this.locale]) {
+      this.messages[this.locale] = {};
+    }
+    this.message = this.messages[this.locale];
+    if (oldLocale !== this.locale) {
+      this.watchers.forEach((watcher) => {
+        watcher(this.locale, oldLocale);
+      });
+    }
+  }
+  getLocale() {
+    return this.locale;
+  }
+  watchLocale(fn) {
+    const index2 = this.watchers.push(fn) - 1;
+    return () => {
+      this.watchers.splice(index2, 1);
+    };
+  }
+  add(locale, message, override = true) {
+    const curMessages = this.messages[locale];
+    if (curMessages) {
+      if (override) {
+        Object.assign(curMessages, message);
+      } else {
+        Object.keys(message).forEach((key) => {
+          if (!hasOwn(curMessages, key)) {
+            curMessages[key] = message[key];
+          }
+        });
+      }
+    } else {
+      this.messages[locale] = message;
+    }
+  }
+  f(message, values, delimiters) {
+    return this.formater.interpolate(message, values, delimiters).join("");
+  }
+  t(key, locale, values) {
+    let message = this.message;
+    if (typeof locale === "string") {
+      locale = normalizeLocale(locale, this.messages);
+      locale && (message = this.messages[locale]);
+    } else {
+      values = locale;
+    }
+    if (!hasOwn(message, key)) {
+      console.warn(`Cannot translate the value of keypath ${key}. Use the value of keypath as default.`);
+      return key;
+    }
+    return this.formater.interpolate(message[key], values).join("");
+  }
+}
+function watchAppLocale(appVm, i18n) {
+  if (appVm.$watchLocale) {
+    appVm.$watchLocale((newLocale) => {
+      i18n.setLocale(newLocale);
+    });
+  } else {
+    appVm.$watch(() => appVm.$locale, (newLocale) => {
+      i18n.setLocale(newLocale);
+    });
+  }
+}
+function getDefaultLocale() {
+  if (typeof index !== "undefined" && index.getLocale) {
+    return index.getLocale();
+  }
+  if (typeof global !== "undefined" && global.getLocale) {
+    return global.getLocale();
+  }
+  return LOCALE_EN;
+}
+function initVueI18n(locale, messages = {}, fallbackLocale, watcher) {
+  if (typeof locale !== "string") {
+    [locale, messages] = [
+      messages,
+      locale
+    ];
+  }
+  if (typeof locale !== "string") {
+    locale = getDefaultLocale();
+  }
+  if (typeof fallbackLocale !== "string") {
+    fallbackLocale = typeof __uniConfig !== "undefined" && __uniConfig.fallbackLocale || LOCALE_EN;
+  }
+  const i18n = new I18n({
+    locale,
+    fallbackLocale,
+    messages,
+    watcher
+  });
+  let t2 = (key, values) => {
+    if (typeof getApp !== "function") {
+      t2 = function(key2, values2) {
+        return i18n.t(key2, values2);
+      };
+    } else {
+      let isWatchedAppLocale = false;
+      t2 = function(key2, values2) {
+        const appVm = getApp().$vm;
+        if (appVm) {
+          appVm.$locale;
+          if (!isWatchedAppLocale) {
+            isWatchedAppLocale = true;
+            watchAppLocale(appVm, i18n);
+          }
+        }
+        return i18n.t(key2, values2);
+      };
+    }
+    return t2(key, values);
+  };
+  return {
+    i18n,
+    f(message, values, delimiters) {
+      return i18n.f(message, values, delimiters);
+    },
+    t(key, values) {
+      return t2(key, values);
+    },
+    add(locale2, message, override = true) {
+      return i18n.add(locale2, message, override);
+    },
+    watch(fn) {
+      return i18n.watchLocale(fn);
+    },
+    getLocale() {
+      return i18n.getLocale();
+    },
+    setLocale(newLocale) {
+      return i18n.setLocale(newLocale);
+    }
+  };
+}
 function getBaseSystemInfo() {
   return wx.getSystemInfoSync();
 }
@@ -439,7 +681,7 @@ function validateProtocol(name, data, protocol, onFail) {
     onFail = validateProtocolFail;
   }
   for (const key in protocol) {
-    const errMsg = validateProp$1(key, data[key], protocol[key], !hasOwn(data, key));
+    const errMsg = validateProp$1(key, data[key], protocol[key], !hasOwn$1(data, key));
     if (isString(errMsg)) {
       onFail(name, errMsg);
     }
@@ -502,7 +744,7 @@ function assertType$1(value, type) {
       valid = value instanceof type;
     }
   } else if (expectedType === "Object") {
-    valid = isObject(value);
+    valid = isObject$1(value);
   } else if (expectedType === "Array") {
     valid = isArray(value);
   } else {
@@ -758,7 +1000,7 @@ function formatApiArgs(args, options) {
         return errMsg;
       }
     } else {
-      if (!hasOwn(params, name)) {
+      if (!hasOwn$1(params, name)) {
         params[name] = formatterOrDefaultValue;
       }
     }
@@ -1126,7 +1368,7 @@ function initWrapper(protocols2) {
         argsOption = argsOption(fromArgs, toArgs) || {};
       }
       for (const key in fromArgs) {
-        if (hasOwn(argsOption, key)) {
+        if (hasOwn$1(argsOption, key)) {
           let keyOption = argsOption[key];
           if (isFunction(keyOption)) {
             keyOption = keyOption(fromArgs[key], fromArgs, toArgs);
@@ -1144,7 +1386,7 @@ function initWrapper(protocols2) {
             toArgs[key] = processCallback(methodName, callback, returnValue);
           }
         } else {
-          if (!keepFromArgs && !hasOwn(toArgs, key)) {
+          if (!keepFromArgs && !hasOwn$1(toArgs, key)) {
             toArgs[key] = fromArgs[key];
           }
         }
@@ -1162,7 +1404,7 @@ function initWrapper(protocols2) {
     return processArgs(methodName, res, returnValue, {}, keepReturnValue);
   }
   return function wrapper(methodName, method) {
-    if (!hasOwn(protocols2, methodName)) {
+    if (!hasOwn$1(protocols2, methodName)) {
       return method;
     }
     const protocol = protocols2[methodName];
@@ -1261,13 +1503,13 @@ function populateParameters(fromRes, toRes) {
   let _SDKVersion = SDKVersion;
   const hostLanguage = language.replace(/_/g, "-");
   const parameters = {
-    appId: "",
-    appName: "wx_demo",
+    appId: "__UNI__C96E320",
+    appName: "ycxy",
     appVersion: "1.0.0",
     appVersionCode: "100",
     appLanguage: getAppLanguage(hostLanguage),
-    uniCompileVersion: "3.95",
-    uniRuntimeVersion: "3.95",
+    uniCompileVersion: "3.98",
+    uniRuntimeVersion: "3.98",
     uniPlatform: "mp-weixin",
     deviceBrand,
     deviceModel: model,
@@ -1405,8 +1647,8 @@ const getAppBaseInfo = {
       hostName: _hostName,
       hostSDKVersion: SDKVersion,
       hostTheme: theme,
-      appId: "",
-      appName: "wx_demo",
+      appId: "__UNI__C96E320",
+      appName: "ycxy",
       appVersion: "1.0.0",
       appVersionCode: "100",
       appLanguage: getAppLanguage(hostLanguage)
@@ -1456,13 +1698,13 @@ function initUni(api, protocols2, platform = wx) {
   const wrapper = initWrapper(protocols2);
   const UniProxyHandlers = {
     get(target, key) {
-      if (hasOwn(target, key)) {
+      if (hasOwn$1(target, key)) {
         return target[key];
       }
-      if (hasOwn(api, key)) {
+      if (hasOwn$1(api, key)) {
         return promisify(key, api[key]);
       }
-      if (hasOwn(baseApis, key)) {
+      if (hasOwn$1(baseApis, key)) {
         return promisify(key, baseApis[key]);
       }
       return promisify(key, wrapper(key, platform[key]));
@@ -1949,7 +2191,7 @@ function createGetter(isReadonly2 = false, shallow = false) {
     }
     const targetIsArray = isArray(target);
     if (!isReadonly2) {
-      if (targetIsArray && hasOwn(arrayInstrumentations, key)) {
+      if (targetIsArray && hasOwn$1(arrayInstrumentations, key)) {
         return Reflect.get(arrayInstrumentations, key, receiver);
       }
       if (key === "hasOwnProperty") {
@@ -1969,7 +2211,7 @@ function createGetter(isReadonly2 = false, shallow = false) {
     if (isRef(res)) {
       return targetIsArray && isIntegerKey(key) ? res : res.value;
     }
-    if (isObject(res)) {
+    if (isObject$1(res)) {
       return isReadonly2 ? readonly(res) : reactive(res);
     }
     return res;
@@ -1993,7 +2235,7 @@ function createSetter(shallow = false) {
         return true;
       }
     }
-    const hadKey = isArray(target) && isIntegerKey(key) ? Number(key) < target.length : hasOwn(target, key);
+    const hadKey = isArray(target) && isIntegerKey(key) ? Number(key) < target.length : hasOwn$1(target, key);
     const result = Reflect.set(target, key, value, receiver);
     if (target === toRaw(receiver)) {
       if (!hadKey) {
@@ -2006,7 +2248,7 @@ function createSetter(shallow = false) {
   };
 }
 function deleteProperty(target, key) {
-  const hadKey = hasOwn(target, key);
+  const hadKey = hasOwn$1(target, key);
   const oldValue = target[key];
   const result = Reflect.deleteProperty(target, key);
   if (result && hadKey) {
@@ -2323,7 +2565,7 @@ function createInstrumentationGetter(isReadonly2, shallow) {
     } else if (key === "__v_raw") {
       return target;
     }
-    return Reflect.get(hasOwn(instrumentations, key) && key in target ? instrumentations : target, key, receiver);
+    return Reflect.get(hasOwn$1(instrumentations, key) && key in target ? instrumentations : target, key, receiver);
   };
 }
 const mutableCollectionHandlers = {
@@ -2385,7 +2627,7 @@ function shallowReadonly(target) {
   return createReactiveObject(target, true, shallowReadonlyHandlers, shallowReadonlyCollectionHandlers, shallowReadonlyMap);
 }
 function createReactiveObject(target, isReadonly2, baseHandlers, collectionHandlers, proxyMap) {
-  if (!isObject(target)) {
+  if (!isObject$1(target)) {
     {
       console.warn(`value cannot be made reactive: ${String(target)}`);
     }
@@ -2450,8 +2692,8 @@ function markRaw(value) {
   def(value, "__v_skip", true);
   return value;
 }
-const toReactive = (value) => isObject(value) ? reactive(value) : value;
-const toReadonly = (value) => isObject(value) ? readonly(value) : value;
+const toReactive = (value) => isObject$1(value) ? reactive(value) : value;
+const toReadonly = (value) => isObject$1(value) ? readonly(value) : value;
 function trackRefValue(ref2) {
   if (shouldTrack && activeEffect) {
     ref2 = toRaw(ref2);
@@ -3211,7 +3453,7 @@ function normalizeEmitsOptions(comp, appContext, asMixin = false) {
     }
   }
   if (!raw && !hasExtends) {
-    if (isObject(comp)) {
+    if (isObject$1(comp)) {
       cache.set(comp, null);
     }
     return null;
@@ -3221,7 +3463,7 @@ function normalizeEmitsOptions(comp, appContext, asMixin = false) {
   } else {
     extend(normalized, raw);
   }
-  if (isObject(comp)) {
+  if (isObject$1(comp)) {
     cache.set(comp, normalized);
   }
   return normalized;
@@ -3231,7 +3473,7 @@ function isEmitListener(options, key) {
     return false;
   }
   key = key.slice(2).replace(/Once$/, "");
-  return hasOwn(options, key[0].toLowerCase() + key.slice(1)) || hasOwn(options, hyphenate(key)) || hasOwn(options, key);
+  return hasOwn$1(options, key[0].toLowerCase() + key.slice(1)) || hasOwn$1(options, hyphenate(key)) || hasOwn$1(options, key);
 }
 let currentRenderingInstance = null;
 function setCurrentRenderingInstance(instance) {
@@ -3448,7 +3690,7 @@ function createPathGetter(ctx, path) {
   };
 }
 function traverse(value, seen) {
-  if (!isObject(value) || value[
+  if (!isObject$1(value) || value[
     "__v_skip"
     /* ReactiveFlags.SKIP */
   ]) {
@@ -3663,7 +3905,7 @@ const publicPropertiesMap = (
   })
 );
 const isReservedPrefix = (key) => key === "_" || key === "$";
-const hasSetupBinding = (state, key) => state !== EMPTY_OBJ && !state.__isScriptSetup && hasOwn(state, key);
+const hasSetupBinding = (state, key) => state !== EMPTY_OBJ && !state.__isScriptSetup && hasOwn$1(state, key);
 const PublicInstanceProxyHandlers = {
   get({ _: instance }, key) {
     const { ctx, setupState, data, props, accessCache, type, appContext } = instance;
@@ -3687,17 +3929,17 @@ const PublicInstanceProxyHandlers = {
       } else if (hasSetupBinding(setupState, key)) {
         accessCache[key] = 1;
         return setupState[key];
-      } else if (data !== EMPTY_OBJ && hasOwn(data, key)) {
+      } else if (data !== EMPTY_OBJ && hasOwn$1(data, key)) {
         accessCache[key] = 2;
         return data[key];
       } else if (
         // only cache other properties when instance has declared (thus stable)
         // props
-        (normalizedProps = instance.propsOptions[0]) && hasOwn(normalizedProps, key)
+        (normalizedProps = instance.propsOptions[0]) && hasOwn$1(normalizedProps, key)
       ) {
         accessCache[key] = 3;
         return props[key];
-      } else if (ctx !== EMPTY_OBJ && hasOwn(ctx, key)) {
+      } else if (ctx !== EMPTY_OBJ && hasOwn$1(ctx, key)) {
         accessCache[key] = 4;
         return ctx[key];
       } else if (shouldCacheAccess) {
@@ -3716,12 +3958,12 @@ const PublicInstanceProxyHandlers = {
       (cssModule = type.__cssModules) && (cssModule = cssModule[key])
     ) {
       return cssModule;
-    } else if (ctx !== EMPTY_OBJ && hasOwn(ctx, key)) {
+    } else if (ctx !== EMPTY_OBJ && hasOwn$1(ctx, key)) {
       accessCache[key] = 4;
       return ctx[key];
     } else if (
       // global properties
-      globalProperties = appContext.config.globalProperties, hasOwn(globalProperties, key)
+      globalProperties = appContext.config.globalProperties, hasOwn$1(globalProperties, key)
     ) {
       {
         return globalProperties[key];
@@ -3729,7 +3971,7 @@ const PublicInstanceProxyHandlers = {
     } else if (currentRenderingInstance && (!isString(key) || // #1091 avoid internal isRef/isVNode checks on component instance leading
     // to infinite warning loop
     key.indexOf("__v") !== 0)) {
-      if (data !== EMPTY_OBJ && isReservedPrefix(key[0]) && hasOwn(data, key)) {
+      if (data !== EMPTY_OBJ && isReservedPrefix(key[0]) && hasOwn$1(data, key)) {
         warn(`Property ${JSON.stringify(key)} must be accessed via $data because it starts with a reserved character ("$" or "_") and is not proxied on the render context.`);
       } else if (instance === currentRenderingInstance) {
         warn(`Property ${JSON.stringify(key)} was accessed during render but is not defined on instance.`);
@@ -3741,13 +3983,13 @@ const PublicInstanceProxyHandlers = {
     if (hasSetupBinding(setupState, key)) {
       setupState[key] = value;
       return true;
-    } else if (setupState.__isScriptSetup && hasOwn(setupState, key)) {
+    } else if (setupState.__isScriptSetup && hasOwn$1(setupState, key)) {
       warn(`Cannot mutate <script setup> binding "${key}" from Options API.`);
       return false;
-    } else if (data !== EMPTY_OBJ && hasOwn(data, key)) {
+    } else if (data !== EMPTY_OBJ && hasOwn$1(data, key)) {
       data[key] = value;
       return true;
-    } else if (hasOwn(instance.props, key)) {
+    } else if (hasOwn$1(instance.props, key)) {
       warn(`Attempting to mutate prop "${key}". Props are readonly.`);
       return false;
     }
@@ -3769,12 +4011,12 @@ const PublicInstanceProxyHandlers = {
   },
   has({ _: { data, setupState, accessCache, ctx, appContext, propsOptions } }, key) {
     let normalizedProps;
-    return !!accessCache[key] || data !== EMPTY_OBJ && hasOwn(data, key) || hasSetupBinding(setupState, key) || (normalizedProps = propsOptions[0]) && hasOwn(normalizedProps, key) || hasOwn(ctx, key) || hasOwn(publicPropertiesMap, key) || hasOwn(appContext.config.globalProperties, key);
+    return !!accessCache[key] || data !== EMPTY_OBJ && hasOwn$1(data, key) || hasSetupBinding(setupState, key) || (normalizedProps = propsOptions[0]) && hasOwn$1(normalizedProps, key) || hasOwn$1(ctx, key) || hasOwn$1(publicPropertiesMap, key) || hasOwn$1(appContext.config.globalProperties, key);
   },
   defineProperty(target, key, descriptor) {
     if (descriptor.get != null) {
       target._.accessCache[key] = 0;
-    } else if (hasOwn(descriptor, "value")) {
+    } else if (hasOwn$1(descriptor, "value")) {
       this.set(target, key, descriptor.value, null);
     }
     return Reflect.defineProperty(target, key, descriptor);
@@ -3932,7 +4174,7 @@ function applyOptions$1(instance) {
     if (isPromise(data)) {
       warn(`data() returned a Promise - note data() cannot be async; If you intend to perform data fetching before component renders, use async setup() + <Suspense>.`);
     }
-    if (!isObject(data)) {
+    if (!isObject$1(data)) {
       warn(`data() should return an object.`);
     } else {
       instance.data = reactive(data);
@@ -4053,7 +4295,7 @@ function resolveInjections(injectOptions, ctx, checkDuplicateProperties = NOOP, 
   for (const key in injectOptions) {
     const opt = injectOptions[key];
     let injected;
-    if (isObject(opt)) {
+    if (isObject$1(opt)) {
       if ("default" in opt) {
         injected = inject(
           opt.from || key,
@@ -4103,7 +4345,7 @@ function createWatcher(raw, ctx, publicThis, key) {
     }
   } else if (isFunction(raw)) {
     watch(getter, raw.bind(publicThis));
-  } else if (isObject(raw)) {
+  } else if (isObject$1(raw)) {
     if (isArray(raw)) {
       raw.forEach((r2) => createWatcher(r2, ctx, publicThis, key));
     } else {
@@ -4137,7 +4379,7 @@ function resolveMergedOptions(instance) {
     }
     mergeOptions(resolved, base, optionMergeStrategies);
   }
-  if (isObject(base)) {
+  if (isObject$1(base)) {
     cache.set(base, resolved);
   }
   return resolved;
@@ -4283,7 +4525,7 @@ function updateProps(instance, rawProps, rawPrevProps, optimized) {
         }
         const value = rawProps[key];
         if (options) {
-          if (hasOwn(attrs, key)) {
+          if (hasOwn$1(attrs, key)) {
             if (value !== attrs[key]) {
               attrs[key] = value;
               hasAttrsChanged = true;
@@ -4315,9 +4557,9 @@ function updateProps(instance, rawProps, rawPrevProps, optimized) {
     let kebabKey;
     for (const key in rawCurrentProps) {
       if (!rawProps || // for camelCase
-      !hasOwn(rawProps, key) && // it's possible the original props was passed in as kebab-case
+      !hasOwn$1(rawProps, key) && // it's possible the original props was passed in as kebab-case
       // and converted to camelCase (#955)
-      ((kebabKey = hyphenate(key)) === key || !hasOwn(rawProps, kebabKey))) {
+      ((kebabKey = hyphenate(key)) === key || !hasOwn$1(rawProps, kebabKey))) {
         if (options) {
           if (rawPrevProps && // for camelCase
           (rawPrevProps[key] !== void 0 || // for kebab-case
@@ -4339,7 +4581,7 @@ function updateProps(instance, rawProps, rawPrevProps, optimized) {
     }
     if (attrs !== rawCurrentProps) {
       for (const key in attrs) {
-        if (!rawProps || !hasOwn(rawProps, key) && true) {
+        if (!rawProps || !hasOwn$1(rawProps, key) && true) {
           delete attrs[key];
           hasAttrsChanged = true;
         }
@@ -4364,7 +4606,7 @@ function setFullProps(instance, rawProps, props, attrs) {
       }
       const value = rawProps[key];
       let camelKey;
-      if (options && hasOwn(options, camelKey = camelize(key))) {
+      if (options && hasOwn$1(options, camelKey = camelize(key))) {
         if (!needCastKeys || !needCastKeys.includes(camelKey)) {
           props[camelKey] = value;
         } else {
@@ -4383,7 +4625,7 @@ function setFullProps(instance, rawProps, props, attrs) {
     const castValues = rawCastValues || EMPTY_OBJ;
     for (let i2 = 0; i2 < needCastKeys.length; i2++) {
       const key = needCastKeys[i2];
-      props[key] = resolvePropValue(options, rawCurrentProps, key, castValues[key], instance, !hasOwn(castValues, key));
+      props[key] = resolvePropValue(options, rawCurrentProps, key, castValues[key], instance, !hasOwn$1(castValues, key));
     }
   }
   return hasAttrsChanged;
@@ -4391,7 +4633,7 @@ function setFullProps(instance, rawProps, props, attrs) {
 function resolvePropValue(options, props, key, value, instance, isAbsent) {
   const opt = options[key];
   if (opt != null) {
-    const hasDefault = hasOwn(opt, "default");
+    const hasDefault = hasOwn$1(opt, "default");
     if (hasDefault && value === void 0) {
       const defaultValue = opt.default;
       if (opt.type !== Function && isFunction(defaultValue)) {
@@ -4452,7 +4694,7 @@ function normalizePropsOptions(comp, appContext, asMixin = false) {
     }
   }
   if (!raw && !hasExtends) {
-    if (isObject(comp)) {
+    if (isObject$1(comp)) {
       cache.set(comp, EMPTY_ARR);
     }
     return EMPTY_ARR;
@@ -4468,7 +4710,7 @@ function normalizePropsOptions(comp, appContext, asMixin = false) {
       }
     }
   } else if (raw) {
-    if (!isObject(raw)) {
+    if (!isObject$1(raw)) {
       warn(`invalid props options`, raw);
     }
     for (const key in raw) {
@@ -4487,7 +4729,7 @@ function normalizePropsOptions(comp, appContext, asMixin = false) {
             1
             /* BooleanFlags.shouldCastTrue */
           ] = stringIndex < 0 || booleanIndex < stringIndex;
-          if (booleanIndex > -1 || hasOwn(prop, "default")) {
+          if (booleanIndex > -1 || hasOwn$1(prop, "default")) {
             needCastKeys.push(normalizedKey);
           }
         }
@@ -4495,7 +4737,7 @@ function normalizePropsOptions(comp, appContext, asMixin = false) {
     }
   }
   const res = [normalized, needCastKeys];
-  if (isObject(comp)) {
+  if (isObject$1(comp)) {
     cache.set(comp, res);
   }
   return res;
@@ -4530,7 +4772,7 @@ function validateProps(rawProps, props, instance) {
     let opt = options[key];
     if (opt == null)
       continue;
-    validateProp(key, resolvedValues[key], opt, !hasOwn(rawProps, key) && !hasOwn(rawProps, hyphenate(key)));
+    validateProp(key, resolvedValues[key], opt, !hasOwn$1(rawProps, key) && !hasOwn$1(rawProps, hyphenate(key)));
   }
 }
 function validateProp(name, value, prop, isAbsent) {
@@ -4571,7 +4813,7 @@ function assertType(value, type) {
       valid = value instanceof type;
     }
   } else if (expectedType === "Object") {
-    valid = isObject(value);
+    valid = isObject$1(value);
   } else if (expectedType === "Array") {
     valid = isArray(value);
   } else if (expectedType === "null") {
@@ -4642,7 +4884,7 @@ function createAppAPI(render, hydrate) {
     if (!isFunction(rootComponent)) {
       rootComponent = Object.assign({}, rootComponent);
     }
-    if (rootProps != null && !isObject(rootProps)) {
+    if (rootProps != null && !isObject$1(rootProps)) {
       warn(`root props passed to app.mount() must be an object.`);
       rootProps = null;
     }
@@ -4950,7 +5192,7 @@ function handleSetupResult(instance, setupResult, isSSR) {
     {
       instance.render = setupResult;
     }
-  } else if (isObject(setupResult)) {
+  } else if (isObject$1(setupResult)) {
     if (isVNode(setupResult)) {
       warn(`setup() should not return VNodes directly - return a render function instead.`);
     }
@@ -5245,7 +5487,7 @@ function clone(src, seen) {
       copy = {};
       seen.set(src, copy);
       for (const name in src) {
-        if (hasOwn(src, name)) {
+        if (hasOwn$1(src, name)) {
           copy[name] = clone(src[name], seen);
         }
       }
@@ -5353,7 +5595,7 @@ function setRef$1(instance, isUnmount = false) {
   }
 }
 function toSkip(value) {
-  if (isObject(value)) {
+  if (isObject$1(value)) {
     markRaw(value);
   }
   return value;
@@ -5392,7 +5634,7 @@ function setTemplateRef({ r: r2, f: f2 }, refValue, setupState) {
           onBeforeUnmount(() => remove(existing, refValue), refValue.$);
         }
       } else if (_isString) {
-        if (hasOwn(setupState, r2)) {
+        if (hasOwn$1(setupState, r2)) {
           setupState[r2] = refValue;
         }
       } else if (isRef(r2)) {
@@ -5712,6 +5954,14 @@ function applyOptions$2(options, instance, publicThis) {
 function set(target, key, val) {
   return target[key] = val;
 }
+function $callMethod(method, ...args) {
+  const fn = this[method];
+  if (fn) {
+    return fn(...args);
+  }
+  console.error(`method ${method} not found`);
+  return null;
+}
 function createErrorHandler(app) {
   return function errorHandler(err, instance, _info) {
     if (!instance) {
@@ -5810,6 +6060,7 @@ function initApp(app) {
   {
     globalProperties.$set = set;
     globalProperties.$applyOptions = applyOptions$2;
+    globalProperties.$callMethod = $callMethod;
   }
   {
     index.invokeCreateVueAppHook(app);
@@ -5923,14 +6174,14 @@ function patchMPEvent(event) {
     event.preventDefault = NOOP;
     event.stopPropagation = NOOP;
     event.stopImmediatePropagation = NOOP;
-    if (!hasOwn(event, "detail")) {
+    if (!hasOwn$1(event, "detail")) {
       event.detail = {};
     }
-    if (hasOwn(event, "markerId")) {
+    if (hasOwn$1(event, "markerId")) {
       event.detail = typeof event.detail === "object" ? event.detail : {};
       event.detail.markerId = event.markerId;
     }
-    if (isPlainObject(event.detail) && hasOwn(event.detail, "checked") && !hasOwn(event.detail, "value")) {
+    if (isPlainObject(event.detail) && hasOwn$1(event.detail, "checked") && !hasOwn$1(event.detail, "value")) {
       event.detail.value = event.detail.checked;
     }
     if (isPlainObject(event.detail)) {
@@ -5966,7 +6217,7 @@ function vFor(source, renderItem) {
     for (let i2 = 0; i2 < source; i2++) {
       ret[i2] = renderItem(i2 + 1, i2, i2);
     }
-  } else if (isObject(source)) {
+  } else if (isObject$1(source)) {
     if (source[Symbol.iterator]) {
       ret = Array.from(source, (item, i2) => renderItem(item, i2, i2));
     } else {
@@ -5998,6 +6249,10 @@ function stringify(styles) {
   }
   return ret;
 }
+function setRef(ref2, id, opts = {}) {
+  const { $templateRefs } = getCurrentInstance();
+  $templateRefs.push({ i: id, r: ref2, k: opts.k, f: opts.f });
+}
 const o$1 = (value, key) => vOn(value, key);
 const f$1 = (source, renderItem) => vFor(source, renderItem);
 const s$1 = (value) => stringifyStyle(value);
@@ -6005,6 +6260,7 @@ const e$1 = (target, ...sources) => extend(target, ...sources);
 const n$1 = (value) => normalizeClass(value);
 const t$1 = (val) => toDisplayString(val);
 const p$1 = (props) => renderProps(props);
+const sr = (ref2, id, opts) => setRef(ref2, id, opts);
 function createApp$1(rootComponent, rootProps = null) {
   rootComponent && (rootComponent.mpType = "app");
   return createVueApp(rootComponent, rootProps).use(plugin);
@@ -6071,7 +6327,7 @@ function initComponentInstance(instance, options) {
 function initMocks(instance, mpInstance, mocks2) {
   const ctx = instance.ctx;
   mocks2.forEach((mock) => {
-    if (hasOwn(mpInstance, mock)) {
+    if (hasOwn$1(mpInstance, mock)) {
       instance[mock] = ctx[mock] = mpInstance[mock];
     }
   });
@@ -6127,7 +6383,7 @@ function findHooks(vueOptions, hooks = /* @__PURE__ */ new Set()) {
   return hooks;
 }
 function initHook(mpOptions, hook, excludes) {
-  if (excludes.indexOf(hook) === -1 && !hasOwn(mpOptions, hook)) {
+  if (excludes.indexOf(hook) === -1 && !hasOwn$1(mpOptions, hook)) {
     mpOptions[hook] = function(args) {
       return this.$vm && this.$vm.$callHook(hook, args);
     };
@@ -6160,7 +6416,7 @@ const findMixinRuntimeHooks = /* @__PURE__ */ once(() => {
       const hooks = Object.keys(MINI_PROGRAM_PAGE_RUNTIME_HOOKS);
       mixins.forEach((mixin) => {
         hooks.forEach((hook) => {
-          if (hasOwn(mixin, hook) && !runtimeHooks.includes(hook)) {
+          if (hasOwn$1(mixin, hook) && !runtimeHooks.includes(hook)) {
             runtimeHooks.push(hook);
           }
         });
@@ -6200,6 +6456,12 @@ function parseApp(instance, parseAppOptions) {
       instance.$callHook(ON_LAUNCH, options);
     }
   };
+  const { onError } = internalInstance;
+  if (onError) {
+    internalInstance.appContext.config.errorHandler = (err) => {
+      instance.$callHook(ON_ERROR, err);
+    };
+  }
   initLocale(instance);
   const vueOptions = instance.$.type;
   initHooks(appOptions, HOOKS);
@@ -6230,13 +6492,13 @@ function initCreateSubpackageApp(parseAppOptions) {
     const globalData = app.globalData;
     if (globalData) {
       Object.keys(appOptions.globalData).forEach((name) => {
-        if (!hasOwn(globalData, name)) {
+        if (!hasOwn$1(globalData, name)) {
           globalData[name] = appOptions.globalData[name];
         }
       });
     }
     Object.keys(appOptions).forEach((name) => {
-      if (!hasOwn(app, name)) {
+      if (!hasOwn$1(app, name)) {
         app[name] = appOptions[name];
       }
     });
@@ -6286,7 +6548,7 @@ function initVueIds(vueIds, mpInstance) {
 const EXTRAS = ["externalClasses"];
 function initExtraOptions(miniProgramComponentOptions, vueOptions) {
   EXTRAS.forEach((name) => {
-    if (hasOwn(vueOptions, name)) {
+    if (hasOwn$1(vueOptions, name)) {
       miniProgramComponentOptions[name] = vueOptions[name];
     }
   });
@@ -6593,7 +6855,7 @@ function applyOptions(componentOptions, vueOptions) {
   componentOptions.data = initData();
   componentOptions.behaviors = initBehaviors(vueOptions);
 }
-function parseComponent(vueOptions, { parse, mocks: mocks2, isPage: isPage2, initRelation: initRelation2, handleLink: handleLink2, initLifetimes: initLifetimes2 }) {
+function parseComponent(vueOptions, { parse: parse2, mocks: mocks2, isPage: isPage2, initRelation: initRelation2, handleLink: handleLink2, initLifetimes: initLifetimes2 }) {
   vueOptions = vueOptions.default || vueOptions;
   const options = {
     multipleSlots: true,
@@ -6603,7 +6865,7 @@ function parseComponent(vueOptions, { parse, mocks: mocks2, isPage: isPage2, ini
   };
   if (isArray(vueOptions.mixins)) {
     vueOptions.mixins.forEach((item) => {
-      if (isObject(item.options)) {
+      if (isObject$1(item.options)) {
         extend(options, item.options);
       }
     });
@@ -6639,8 +6901,8 @@ function parseComponent(vueOptions, { parse, mocks: mocks2, isPage: isPage2, ini
   {
     initWorkletMethods(mpComponentOptions.methods, vueOptions.methods);
   }
-  if (parse) {
-    parse(mpComponentOptions, { handleLink: handleLink2 });
+  if (parse2) {
+    parse2(mpComponentOptions, { handleLink: handleLink2 });
   }
   return mpComponentOptions;
 }
@@ -6668,7 +6930,7 @@ function $destroyComponent(instance) {
   return $destroyComponentFn(instance);
 }
 function parsePage(vueOptions, parseOptions2) {
-  const { parse, mocks: mocks2, isPage: isPage2, initRelation: initRelation2, handleLink: handleLink2, initLifetimes: initLifetimes2 } = parseOptions2;
+  const { parse: parse2, mocks: mocks2, isPage: isPage2, initRelation: initRelation2, handleLink: handleLink2, initLifetimes: initLifetimes2 } = parseOptions2;
   const miniProgramPageOptions = parseComponent(vueOptions, {
     mocks: mocks2,
     isPage: isPage2,
@@ -6691,7 +6953,7 @@ function parsePage(vueOptions, parseOptions2) {
   }
   initRuntimeHooks(methods, vueOptions.__runtimeHooks);
   initMixinRuntimeHooks(methods);
-  parse && parse(miniProgramPageOptions, { handleLink: handleLink2 });
+  parse2 && parse2(miniProgramPageOptions, { handleLink: handleLink2 });
   return miniProgramPageOptions;
 }
 function initCreatePage(parseOptions2) {
@@ -6844,6 +7106,7 @@ const pages = [
   {
     path: "pages/my/my",
     style: {
+      navigationStyle: "custom",
       navigationBarTitleText: "我的"
     }
   },
@@ -6857,25 +7120,25 @@ const pages = [
   {
     path: "pages/fun/fun",
     style: {
-      navigationBarTitleText: "功能"
+      navigationBarTitleText: "服务"
     }
   },
   {
     path: "pages/grades/grades",
     style: {
-      navigationBarTitleText: ""
+      navigationBarTitleText: "成绩"
     }
   },
   {
     path: "pages/course/course",
     style: {
-      navigationBarTitleText: ""
+      navigationBarTitleText: "课程表"
     }
   },
   {
     path: "pages/login/login",
     style: {
-      navigationBarTitleText: "",
+      navigationBarTitleText: "登录",
       enablePullDownRefresh: false
     }
   },
@@ -6886,9 +7149,56 @@ const pages = [
     }
   },
   {
-    path: "pages/pages_template/pages_template",
+    path: "pages/campusmap/campusmap",
     style: {
-      navigationBarTitleText: "页面模板"
+      navigationBarTitleText: "校园地图"
+    }
+  },
+  {
+    path: "pages/feedback/feedback",
+    style: {
+      navigationBarTitleText: "意见反馈"
+    }
+  },
+  {
+    path: "pages/about/about",
+    style: {
+      navigationBarTitleText: "关于"
+    }
+  },
+  {
+    path: "pages/message/message",
+    style: {
+      navigationBarTitleText: "站内信",
+      enablePullDownRefresh: true
+    }
+  },
+  {
+    path: "pages/visitorregistration/visitorregistration",
+    style: {
+      navigationBarTitleText: "来访登记",
+      enablePullDownRefresh: true
+    }
+  },
+  {
+    path: "pages/gradesanalysis/gradesanalysis",
+    style: {
+      navigationBarTitleText: "成绩分析",
+      enablePullDownRefresh: false
+    }
+  },
+  {
+    path: "pages/userinfo/userinfo",
+    style: {
+      navigationBarTitleText: "个人信息",
+      enablePullDownRefresh: false
+    }
+  },
+  {
+    path: "pages/studentlist/studentlist",
+    style: {
+      navigationBarTitleText: "学生列表",
+      enablePullDownRefresh: false
     }
   }
 ];
@@ -6909,7 +7219,7 @@ const tabBar = {
     },
     {
       pagePath: "pages/fun/fun",
-      text: "功能",
+      text: "服务",
       iconPath: "static/apps-2-line.png",
       selectedIconPath: "static/apps-2-fill.png"
     },
@@ -7029,7 +7339,7 @@ var s = n(function(e2, t2) {
       for (var t4 = e4.length, n4 = [], s3 = 0; s3 < t4; s3++)
         n4[s3 >>> 2] |= (255 & e4.charCodeAt(s3)) << 24 - s3 % 4 * 8;
       return new o2.init(n4, t4);
-    } }, l2 = a2.Utf8 = { stringify: function(e4) {
+    } }, h2 = a2.Utf8 = { stringify: function(e4) {
       try {
         return decodeURIComponent(escape(u2.stringify(e4)));
       } catch (e5) {
@@ -7037,27 +7347,27 @@ var s = n(function(e2, t2) {
       }
     }, parse: function(e4) {
       return u2.parse(unescape(encodeURIComponent(e4)));
-    } }, h2 = r2.BufferedBlockAlgorithm = i2.extend({ reset: function() {
+    } }, l2 = r2.BufferedBlockAlgorithm = i2.extend({ reset: function() {
       this._data = new o2.init(), this._nDataBytes = 0;
     }, _append: function(e4) {
-      "string" == typeof e4 && (e4 = l2.parse(e4)), this._data.concat(e4), this._nDataBytes += e4.sigBytes;
+      "string" == typeof e4 && (e4 = h2.parse(e4)), this._data.concat(e4), this._nDataBytes += e4.sigBytes;
     }, _process: function(t4) {
       var n4 = this._data, s3 = n4.words, r3 = n4.sigBytes, i3 = this.blockSize, a3 = r3 / (4 * i3), c3 = (a3 = t4 ? e3.ceil(a3) : e3.max((0 | a3) - this._minBufferSize, 0)) * i3, u3 = e3.min(4 * c3, r3);
       if (c3) {
-        for (var l3 = 0; l3 < c3; l3 += i3)
-          this._doProcessBlock(s3, l3);
-        var h3 = s3.splice(0, c3);
+        for (var h3 = 0; h3 < c3; h3 += i3)
+          this._doProcessBlock(s3, h3);
+        var l3 = s3.splice(0, c3);
         n4.sigBytes -= u3;
       }
-      return new o2.init(h3, u3);
+      return new o2.init(l3, u3);
     }, clone: function() {
       var e4 = i2.clone.call(this);
       return e4._data = this._data.clone(), e4;
     }, _minBufferSize: 0 });
-    r2.Hasher = h2.extend({ cfg: i2.extend(), init: function(e4) {
+    r2.Hasher = l2.extend({ cfg: i2.extend(), init: function(e4) {
       this.cfg = this.cfg.extend(e4), this.reset();
     }, reset: function() {
-      h2.reset.call(this), this._doReset();
+      l2.reset.call(this), this._doReset();
     }, update: function(e4) {
       return this._append(e4), this._process(), this;
     }, finalize: function(e4) {
@@ -7090,15 +7400,15 @@ var s = n(function(e2, t2) {
         e4[s3] = 16711935 & (r3 << 8 | r3 >>> 24) | 4278255360 & (r3 << 24 | r3 >>> 8);
       }
       var i3 = this._hash.words, o3 = e4[t4 + 0], c3 = e4[t4 + 1], p2 = e4[t4 + 2], f2 = e4[t4 + 3], g2 = e4[t4 + 4], m2 = e4[t4 + 5], y2 = e4[t4 + 6], _2 = e4[t4 + 7], w2 = e4[t4 + 8], v2 = e4[t4 + 9], I2 = e4[t4 + 10], S2 = e4[t4 + 11], b2 = e4[t4 + 12], k = e4[t4 + 13], A2 = e4[t4 + 14], P2 = e4[t4 + 15], T2 = i3[0], C2 = i3[1], x = i3[2], O2 = i3[3];
-      T2 = u2(T2, C2, x, O2, o3, 7, a2[0]), O2 = u2(O2, T2, C2, x, c3, 12, a2[1]), x = u2(x, O2, T2, C2, p2, 17, a2[2]), C2 = u2(C2, x, O2, T2, f2, 22, a2[3]), T2 = u2(T2, C2, x, O2, g2, 7, a2[4]), O2 = u2(O2, T2, C2, x, m2, 12, a2[5]), x = u2(x, O2, T2, C2, y2, 17, a2[6]), C2 = u2(C2, x, O2, T2, _2, 22, a2[7]), T2 = u2(T2, C2, x, O2, w2, 7, a2[8]), O2 = u2(O2, T2, C2, x, v2, 12, a2[9]), x = u2(x, O2, T2, C2, I2, 17, a2[10]), C2 = u2(C2, x, O2, T2, S2, 22, a2[11]), T2 = u2(T2, C2, x, O2, b2, 7, a2[12]), O2 = u2(O2, T2, C2, x, k, 12, a2[13]), x = u2(x, O2, T2, C2, A2, 17, a2[14]), T2 = l2(T2, C2 = u2(C2, x, O2, T2, P2, 22, a2[15]), x, O2, c3, 5, a2[16]), O2 = l2(O2, T2, C2, x, y2, 9, a2[17]), x = l2(x, O2, T2, C2, S2, 14, a2[18]), C2 = l2(C2, x, O2, T2, o3, 20, a2[19]), T2 = l2(T2, C2, x, O2, m2, 5, a2[20]), O2 = l2(O2, T2, C2, x, I2, 9, a2[21]), x = l2(x, O2, T2, C2, P2, 14, a2[22]), C2 = l2(C2, x, O2, T2, g2, 20, a2[23]), T2 = l2(T2, C2, x, O2, v2, 5, a2[24]), O2 = l2(O2, T2, C2, x, A2, 9, a2[25]), x = l2(x, O2, T2, C2, f2, 14, a2[26]), C2 = l2(C2, x, O2, T2, w2, 20, a2[27]), T2 = l2(T2, C2, x, O2, k, 5, a2[28]), O2 = l2(O2, T2, C2, x, p2, 9, a2[29]), x = l2(x, O2, T2, C2, _2, 14, a2[30]), T2 = h2(T2, C2 = l2(C2, x, O2, T2, b2, 20, a2[31]), x, O2, m2, 4, a2[32]), O2 = h2(O2, T2, C2, x, w2, 11, a2[33]), x = h2(x, O2, T2, C2, S2, 16, a2[34]), C2 = h2(C2, x, O2, T2, A2, 23, a2[35]), T2 = h2(T2, C2, x, O2, c3, 4, a2[36]), O2 = h2(O2, T2, C2, x, g2, 11, a2[37]), x = h2(x, O2, T2, C2, _2, 16, a2[38]), C2 = h2(C2, x, O2, T2, I2, 23, a2[39]), T2 = h2(T2, C2, x, O2, k, 4, a2[40]), O2 = h2(O2, T2, C2, x, o3, 11, a2[41]), x = h2(x, O2, T2, C2, f2, 16, a2[42]), C2 = h2(C2, x, O2, T2, y2, 23, a2[43]), T2 = h2(T2, C2, x, O2, v2, 4, a2[44]), O2 = h2(O2, T2, C2, x, b2, 11, a2[45]), x = h2(x, O2, T2, C2, P2, 16, a2[46]), T2 = d2(T2, C2 = h2(C2, x, O2, T2, p2, 23, a2[47]), x, O2, o3, 6, a2[48]), O2 = d2(O2, T2, C2, x, _2, 10, a2[49]), x = d2(x, O2, T2, C2, A2, 15, a2[50]), C2 = d2(C2, x, O2, T2, m2, 21, a2[51]), T2 = d2(T2, C2, x, O2, b2, 6, a2[52]), O2 = d2(O2, T2, C2, x, f2, 10, a2[53]), x = d2(x, O2, T2, C2, I2, 15, a2[54]), C2 = d2(C2, x, O2, T2, c3, 21, a2[55]), T2 = d2(T2, C2, x, O2, w2, 6, a2[56]), O2 = d2(O2, T2, C2, x, P2, 10, a2[57]), x = d2(x, O2, T2, C2, y2, 15, a2[58]), C2 = d2(C2, x, O2, T2, k, 21, a2[59]), T2 = d2(T2, C2, x, O2, g2, 6, a2[60]), O2 = d2(O2, T2, C2, x, S2, 10, a2[61]), x = d2(x, O2, T2, C2, p2, 15, a2[62]), C2 = d2(C2, x, O2, T2, v2, 21, a2[63]), i3[0] = i3[0] + T2 | 0, i3[1] = i3[1] + C2 | 0, i3[2] = i3[2] + x | 0, i3[3] = i3[3] + O2 | 0;
+      T2 = u2(T2, C2, x, O2, o3, 7, a2[0]), O2 = u2(O2, T2, C2, x, c3, 12, a2[1]), x = u2(x, O2, T2, C2, p2, 17, a2[2]), C2 = u2(C2, x, O2, T2, f2, 22, a2[3]), T2 = u2(T2, C2, x, O2, g2, 7, a2[4]), O2 = u2(O2, T2, C2, x, m2, 12, a2[5]), x = u2(x, O2, T2, C2, y2, 17, a2[6]), C2 = u2(C2, x, O2, T2, _2, 22, a2[7]), T2 = u2(T2, C2, x, O2, w2, 7, a2[8]), O2 = u2(O2, T2, C2, x, v2, 12, a2[9]), x = u2(x, O2, T2, C2, I2, 17, a2[10]), C2 = u2(C2, x, O2, T2, S2, 22, a2[11]), T2 = u2(T2, C2, x, O2, b2, 7, a2[12]), O2 = u2(O2, T2, C2, x, k, 12, a2[13]), x = u2(x, O2, T2, C2, A2, 17, a2[14]), T2 = h2(T2, C2 = u2(C2, x, O2, T2, P2, 22, a2[15]), x, O2, c3, 5, a2[16]), O2 = h2(O2, T2, C2, x, y2, 9, a2[17]), x = h2(x, O2, T2, C2, S2, 14, a2[18]), C2 = h2(C2, x, O2, T2, o3, 20, a2[19]), T2 = h2(T2, C2, x, O2, m2, 5, a2[20]), O2 = h2(O2, T2, C2, x, I2, 9, a2[21]), x = h2(x, O2, T2, C2, P2, 14, a2[22]), C2 = h2(C2, x, O2, T2, g2, 20, a2[23]), T2 = h2(T2, C2, x, O2, v2, 5, a2[24]), O2 = h2(O2, T2, C2, x, A2, 9, a2[25]), x = h2(x, O2, T2, C2, f2, 14, a2[26]), C2 = h2(C2, x, O2, T2, w2, 20, a2[27]), T2 = h2(T2, C2, x, O2, k, 5, a2[28]), O2 = h2(O2, T2, C2, x, p2, 9, a2[29]), x = h2(x, O2, T2, C2, _2, 14, a2[30]), T2 = l2(T2, C2 = h2(C2, x, O2, T2, b2, 20, a2[31]), x, O2, m2, 4, a2[32]), O2 = l2(O2, T2, C2, x, w2, 11, a2[33]), x = l2(x, O2, T2, C2, S2, 16, a2[34]), C2 = l2(C2, x, O2, T2, A2, 23, a2[35]), T2 = l2(T2, C2, x, O2, c3, 4, a2[36]), O2 = l2(O2, T2, C2, x, g2, 11, a2[37]), x = l2(x, O2, T2, C2, _2, 16, a2[38]), C2 = l2(C2, x, O2, T2, I2, 23, a2[39]), T2 = l2(T2, C2, x, O2, k, 4, a2[40]), O2 = l2(O2, T2, C2, x, o3, 11, a2[41]), x = l2(x, O2, T2, C2, f2, 16, a2[42]), C2 = l2(C2, x, O2, T2, y2, 23, a2[43]), T2 = l2(T2, C2, x, O2, v2, 4, a2[44]), O2 = l2(O2, T2, C2, x, b2, 11, a2[45]), x = l2(x, O2, T2, C2, P2, 16, a2[46]), T2 = d2(T2, C2 = l2(C2, x, O2, T2, p2, 23, a2[47]), x, O2, o3, 6, a2[48]), O2 = d2(O2, T2, C2, x, _2, 10, a2[49]), x = d2(x, O2, T2, C2, A2, 15, a2[50]), C2 = d2(C2, x, O2, T2, m2, 21, a2[51]), T2 = d2(T2, C2, x, O2, b2, 6, a2[52]), O2 = d2(O2, T2, C2, x, f2, 10, a2[53]), x = d2(x, O2, T2, C2, I2, 15, a2[54]), C2 = d2(C2, x, O2, T2, c3, 21, a2[55]), T2 = d2(T2, C2, x, O2, w2, 6, a2[56]), O2 = d2(O2, T2, C2, x, P2, 10, a2[57]), x = d2(x, O2, T2, C2, y2, 15, a2[58]), C2 = d2(C2, x, O2, T2, k, 21, a2[59]), T2 = d2(T2, C2, x, O2, g2, 6, a2[60]), O2 = d2(O2, T2, C2, x, S2, 10, a2[61]), x = d2(x, O2, T2, C2, p2, 15, a2[62]), C2 = d2(C2, x, O2, T2, v2, 21, a2[63]), i3[0] = i3[0] + T2 | 0, i3[1] = i3[1] + C2 | 0, i3[2] = i3[2] + x | 0, i3[3] = i3[3] + O2 | 0;
     }, _doFinalize: function() {
       var t4 = this._data, n3 = t4.words, s3 = 8 * this._nDataBytes, r3 = 8 * t4.sigBytes;
       n3[r3 >>> 5] |= 128 << 24 - r3 % 32;
       var i3 = e3.floor(s3 / 4294967296), o3 = s3;
       n3[15 + (r3 + 64 >>> 9 << 4)] = 16711935 & (i3 << 8 | i3 >>> 24) | 4278255360 & (i3 << 24 | i3 >>> 8), n3[14 + (r3 + 64 >>> 9 << 4)] = 16711935 & (o3 << 8 | o3 >>> 24) | 4278255360 & (o3 << 24 | o3 >>> 8), t4.sigBytes = 4 * (n3.length + 1), this._process();
       for (var a3 = this._hash, c3 = a3.words, u3 = 0; u3 < 4; u3++) {
-        var l3 = c3[u3];
-        c3[u3] = 16711935 & (l3 << 8 | l3 >>> 24) | 4278255360 & (l3 << 24 | l3 >>> 8);
+        var h3 = c3[u3];
+        c3[u3] = 16711935 & (h3 << 8 | h3 >>> 24) | 4278255360 & (h3 << 24 | h3 >>> 8);
       }
       return a3;
     }, clone: function() {
@@ -7109,11 +7419,11 @@ var s = n(function(e2, t2) {
       var a3 = e4 + (t4 & n3 | ~t4 & s3) + r3 + o3;
       return (a3 << i3 | a3 >>> 32 - i3) + t4;
     }
-    function l2(e4, t4, n3, s3, r3, i3, o3) {
+    function h2(e4, t4, n3, s3, r3, i3, o3) {
       var a3 = e4 + (t4 & s3 | n3 & ~s3) + r3 + o3;
       return (a3 << i3 | a3 >>> 32 - i3) + t4;
     }
-    function h2(e4, t4, n3, s3, r3, i3, o3) {
+    function l2(e4, t4, n3, s3, r3, i3, o3) {
       var a3 = e4 + (t4 ^ n3 ^ s3) + r3 + o3;
       return (a3 << i3 | a3 >>> 32 - i3) + t4;
     }
@@ -7187,7 +7497,7 @@ var s = n(function(e2, t2) {
     }, _map: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=" };
   }(), n2.enc.Base64);
 });
-const c = "FUNCTION", u = "OBJECT", l = "CLIENT_DB", h = "pending", d = "fulfilled", p = "rejected";
+const c = "FUNCTION", u = "OBJECT", h = "CLIENT_DB", l = "pending", d = "fulfilled", p = "rejected";
 function f(e2) {
   return Object.prototype.toString.call(e2).slice(8, -1).toLowerCase();
 }
@@ -7218,11 +7528,11 @@ class v {
       case _:
         return this.status === p;
       case w:
-        return this.status !== h;
+        return this.status !== l;
     }
   }
   exec() {
-    return this.needRetry ? (this.status = h, this.promise = this.createPromise().then((e2) => (this.status = d, Promise.resolve(e2)), (e2) => (this.status = p, Promise.reject(e2))), this.promise) : this.promise;
+    return this.needRetry ? (this.status = l, this.promise = this.createPromise().then((e2) => (this.status = d, Promise.resolve(e2)), (e2) => (this.status = p, Promise.reject(e2))), this.promise) : this.promise;
   }
 }
 function I(e2) {
@@ -7231,7 +7541,7 @@ function I(e2) {
 const S = true, b = "mp-weixin", A = I([]), P = b, T = I(""), C = I("[]") || [];
 let O = "";
 try {
-  O = "";
+  O = "__UNI__C96E320";
 } catch (e2) {
 }
 let E = {};
@@ -7268,15 +7578,15 @@ function q(e2, t2) {
 function F(e2) {
   N("callObject", e2);
 }
-const K = L("_globalUniCloudListener"), j = "response", B = "needLogin", $ = "refreshToken", W = "clientdb", H = "cloudfunction", z = "cloudobject";
+const K = L("_globalUniCloudListener"), j = "response", $ = "needLogin", B = "refreshToken", W = "clientdb", H = "cloudfunction", z = "cloudobject";
 function J(e2) {
   return K[e2] || (K[e2] = []), K[e2];
 }
-function V(e2, t2) {
+function G(e2, t2) {
   const n2 = J(e2);
   n2.includes(t2) || n2.push(t2);
 }
-function G(e2, t2) {
+function V(e2, t2) {
   const n2 = J(e2), s2 = n2.indexOf(t2);
   -1 !== s2 && n2.splice(s2, 1);
 }
@@ -7344,7 +7654,7 @@ function ue() {
   }
   return { channel: e2, scene: t2 };
 }
-function le() {
+function he() {
   const e2 = index.getLocale && index.getLocale() || "en";
   if (ae)
     return { ...ae, locale: e2, LOCALE: e2 };
@@ -7354,7 +7664,7 @@ function le() {
   }
   return ae = { PLATFORM: r2, OS: s2, APPID: i2, DEVICEID: n2, ...ue(), ...t2 }, { ...ae, locale: e2, LOCALE: e2 };
 }
-var he = { sign: function(e2, t2) {
+var le = { sign: function(e2, t2) {
   let n2 = "";
   return Object.keys(e2).sort().forEach(function(t3) {
     e2[t3] && (n2 = n2 + "&" + t3 + "=" + e2[t3]);
@@ -7393,7 +7703,7 @@ var de = class {
     this.accessToken = e2;
   }
   requestWrapped(e2) {
-    return he.wrappedRequest(e2, this.adapter.request);
+    return le.wrappedRequest(e2, this.adapter.request);
   }
   requestAuth(e2) {
     return this.requestWrapped(e2);
@@ -7411,11 +7721,11 @@ var de = class {
   }
   rebuildRequest(e2) {
     const t2 = Object.assign({}, e2);
-    return t2.data.token = this.accessToken, t2.header["x-basement-token"] = this.accessToken, t2.header["x-serverless-sign"] = he.sign(t2.data, this.config.clientSecret), t2;
+    return t2.data.token = this.accessToken, t2.header["x-basement-token"] = this.accessToken, t2.header["x-serverless-sign"] = le.sign(t2.data, this.config.clientSecret), t2;
   }
   setupRequest(e2, t2) {
     const n2 = Object.assign({}, e2, { spaceId: this.config.spaceId, timestamp: Date.now() }), s2 = { "Content-Type": "application/json" };
-    return "auth" !== t2 && (n2.token = this.accessToken, s2["x-basement-token"] = this.accessToken), s2["x-serverless-sign"] = he.sign(n2, this.config.clientSecret), { url: this.config.requestUrl, method: "POST", data: n2, dataType: "json", header: s2 };
+    return "auth" !== t2 && (n2.token = this.accessToken, s2["x-basement-token"] = this.accessToken), s2["x-serverless-sign"] = le.sign(n2, this.config.clientSecret), { url: this.config.requestUrl, method: "POST", data: n2, dataType: "json", header: s2 };
   }
   getAccessToken() {
     return this._getAccessTokenPromiseHub.exec();
@@ -7457,10 +7767,10 @@ var de = class {
     const o2 = i2 && i2.envType || this.config.envType;
     if (s2 && ("/" !== t2[0] && (t2 = "/" + t2), t2.indexOf("\\") > -1))
       throw new te({ code: "INVALID_PARAM", message: "使用cloudPath作为路径时，cloudPath不可包含“\\”" });
-    const a2 = (await this.getOSSUploadOptionsFromPath({ env: o2, filename: s2 ? t2.split("/").pop() : t2, fileId: s2 ? t2 : void 0 })).result, c2 = "https://" + a2.cdnDomain + "/" + a2.ossPath, { securityToken: u2, accessKeyId: l2, signature: h2, host: d2, ossPath: p2, id: g2, policy: m2, ossCallbackUrl: y2 } = a2, _2 = { "Cache-Control": "max-age=2592000", "Content-Disposition": "attachment", OSSAccessKeyId: l2, Signature: h2, host: d2, id: g2, key: p2, policy: m2, success_action_status: 200 };
+    const a2 = (await this.getOSSUploadOptionsFromPath({ env: o2, filename: s2 ? t2.split("/").pop() : t2, fileId: s2 ? t2 : void 0 })).result, c2 = "https://" + a2.cdnDomain + "/" + a2.ossPath, { securityToken: u2, accessKeyId: h2, signature: l2, host: d2, ossPath: p2, id: g2, policy: m2, ossCallbackUrl: y2 } = a2, _2 = { "Cache-Control": "max-age=2592000", "Content-Disposition": "attachment", OSSAccessKeyId: h2, Signature: l2, host: d2, id: g2, key: p2, policy: m2, success_action_status: 200 };
     if (u2 && (_2["x-oss-security-token"] = u2), y2) {
       const e3 = JSON.stringify({ callbackUrl: y2, callbackBody: JSON.stringify({ fileId: g2, spaceId: this.config.spaceId }), callbackBodyType: "application/json" });
-      _2.callback = he.toBase64(e3);
+      _2.callback = le.toBase64(e3);
     }
     const w2 = { url: "https://" + a2.host, formData: _2, fileName: "file", name: "file", filePath: e2, fileType: n2 };
     if (await this.uploadFileToOSS(Object.assign({}, w2, { onUploadProgress: r2 })), y2)
@@ -7514,20 +7824,20 @@ var me = function() {
       for (var s3 = 2, r3 = 0; r3 < 64; )
         t4(s3) && (r3 < 8 && (a2[r3] = n3(e3.pow(s3, 0.5))), c2[r3] = n3(e3.pow(s3, 1 / 3)), r3++), s3++;
     }();
-    var u2 = [], l2 = o2.SHA256 = i2.extend({ _doReset: function() {
+    var u2 = [], h2 = o2.SHA256 = i2.extend({ _doReset: function() {
       this._hash = new r2.init(a2.slice(0));
     }, _doProcessBlock: function(e4, t4) {
-      for (var n3 = this._hash.words, s3 = n3[0], r3 = n3[1], i3 = n3[2], o3 = n3[3], a3 = n3[4], l3 = n3[5], h2 = n3[6], d2 = n3[7], p2 = 0; p2 < 64; p2++) {
+      for (var n3 = this._hash.words, s3 = n3[0], r3 = n3[1], i3 = n3[2], o3 = n3[3], a3 = n3[4], h3 = n3[5], l2 = n3[6], d2 = n3[7], p2 = 0; p2 < 64; p2++) {
         if (p2 < 16)
           u2[p2] = 0 | e4[t4 + p2];
         else {
           var f2 = u2[p2 - 15], g2 = (f2 << 25 | f2 >>> 7) ^ (f2 << 14 | f2 >>> 18) ^ f2 >>> 3, m2 = u2[p2 - 2], y2 = (m2 << 15 | m2 >>> 17) ^ (m2 << 13 | m2 >>> 19) ^ m2 >>> 10;
           u2[p2] = g2 + u2[p2 - 7] + y2 + u2[p2 - 16];
         }
-        var _2 = s3 & r3 ^ s3 & i3 ^ r3 & i3, w2 = (s3 << 30 | s3 >>> 2) ^ (s3 << 19 | s3 >>> 13) ^ (s3 << 10 | s3 >>> 22), v2 = d2 + ((a3 << 26 | a3 >>> 6) ^ (a3 << 21 | a3 >>> 11) ^ (a3 << 7 | a3 >>> 25)) + (a3 & l3 ^ ~a3 & h2) + c2[p2] + u2[p2];
-        d2 = h2, h2 = l3, l3 = a3, a3 = o3 + v2 | 0, o3 = i3, i3 = r3, r3 = s3, s3 = v2 + (w2 + _2) | 0;
+        var _2 = s3 & r3 ^ s3 & i3 ^ r3 & i3, w2 = (s3 << 30 | s3 >>> 2) ^ (s3 << 19 | s3 >>> 13) ^ (s3 << 10 | s3 >>> 22), v2 = d2 + ((a3 << 26 | a3 >>> 6) ^ (a3 << 21 | a3 >>> 11) ^ (a3 << 7 | a3 >>> 25)) + (a3 & h3 ^ ~a3 & l2) + c2[p2] + u2[p2];
+        d2 = l2, l2 = h3, h3 = a3, a3 = o3 + v2 | 0, o3 = i3, i3 = r3, r3 = s3, s3 = v2 + (w2 + _2) | 0;
       }
-      n3[0] = n3[0] + s3 | 0, n3[1] = n3[1] + r3 | 0, n3[2] = n3[2] + i3 | 0, n3[3] = n3[3] + o3 | 0, n3[4] = n3[4] + a3 | 0, n3[5] = n3[5] + l3 | 0, n3[6] = n3[6] + h2 | 0, n3[7] = n3[7] + d2 | 0;
+      n3[0] = n3[0] + s3 | 0, n3[1] = n3[1] + r3 | 0, n3[2] = n3[2] + i3 | 0, n3[3] = n3[3] + o3 | 0, n3[4] = n3[4] + a3 | 0, n3[5] = n3[5] + h3 | 0, n3[6] = n3[6] + l2 | 0, n3[7] = n3[7] + d2 | 0;
     }, _doFinalize: function() {
       var t4 = this._data, n3 = t4.words, s3 = 8 * this._nDataBytes, r3 = 8 * t4.sigBytes;
       return n3[r3 >>> 5] |= 128 << 24 - r3 % 32, n3[14 + (r3 + 64 >>> 9 << 4)] = e3.floor(s3 / 4294967296), n3[15 + (r3 + 64 >>> 9 << 4)] = s3, t4.sigBytes = 4 * n3.length, this._process(), this._hash;
@@ -7535,7 +7845,7 @@ var me = function() {
       var e4 = i2.clone.call(this);
       return e4._hash = this._hash.clone(), e4;
     } });
-    t3.SHA256 = i2._createHelper(l2), t3.HmacSHA256 = i2._createHmacHelper(l2);
+    t3.SHA256 = i2._createHelper(h2), t3.HmacSHA256 = i2._createHmacHelper(h2);
   }(Math), n2.SHA256);
 }), _e = ye, we = n(function(e2, t2) {
   e2.exports = r.HmacSHA256;
@@ -7712,7 +8022,7 @@ function Me(e2, t2 = {}) {
 function qe(e2, t2) {
   Ne.off(e2, t2);
 }
-const Fe = "loginStateChanged", Ke = "loginStateExpire", je = "loginTypeChanged", Be = "anonymousConverted", $e = "refreshAccessToken";
+const Fe = "loginStateChanged", Ke = "loginStateExpire", je = "loginTypeChanged", $e = "anonymousConverted", Be = "refreshAccessToken";
 var We;
 !function(e2) {
   e2.ANONYMOUS = "ANONYMOUS", e2.WECHAT = "WECHAT", e2.WECHAT_PUBLIC = "WECHAT-PUBLIC", e2.WECHAT_OPEN = "WECHAT-OPEN", e2.CUSTOM = "CUSTOM", e2.EMAIL = "EMAIL", e2.USERNAME = "USERNAME", e2.NULL = "NULL";
@@ -7737,14 +8047,14 @@ function Je(e2, t2, n2) {
     })(), t3.headers = { ...t3.headers || {}, ...i2 }, s2.call(e2, t3);
   };
 }
-function Ve() {
+function Ge() {
   const e2 = Math.random().toString(16).slice(2);
   return { data: { seqId: e2 }, headers: { ...ze, "x-seqid": e2 } };
 }
-class Ge {
+class Ve {
   constructor(e2 = {}) {
     var t2;
-    this.config = e2, this._reqClass = new Ae.adapter.reqClass({ timeout: this.config.timeout, timeoutMsg: `请求在${this.config.timeout / 1e3}s内未完成，已中断`, restrictedMethods: ["post"] }), this._cache = Le(this.config.env), this._localCache = (t2 = this.config.env, Ee[t2]), Je(this._reqClass, "post", [Ve]), Je(this._reqClass, "upload", [Ve]), Je(this._reqClass, "download", [Ve]);
+    this.config = e2, this._reqClass = new Ae.adapter.reqClass({ timeout: this.config.timeout, timeoutMsg: `请求在${this.config.timeout / 1e3}s内未完成，已中断`, restrictedMethods: ["post"] }), this._cache = Le(this.config.env), this._localCache = (t2 = this.config.env, Ee[t2]), Je(this._reqClass, "post", [Ge]), Je(this._reqClass, "upload", [Ge]), Je(this._reqClass, "download", [Ge]);
   }
   async post(e2) {
     return await this._reqClass.post(e2);
@@ -7786,7 +8096,7 @@ class Ge {
       throw new te({ code: a2.data.code, message: `刷新access token失败：${a2.data.code}` });
     }
     if (a2.data.access_token)
-      return Me($e), this._cache.setStore(e2, a2.data.access_token), this._cache.setStore(t2, a2.data.access_token_expire + Date.now()), { accessToken: a2.data.access_token, accessTokenExpire: a2.data.access_token_expire };
+      return Me(Be), this._cache.setStore(e2, a2.data.access_token), this._cache.setStore(t2, a2.data.access_token_expire + Date.now()), { accessToken: a2.data.access_token, accessTokenExpire: a2.data.access_token_expire };
     a2.data.refresh_token && (this._cache.removeStore(n2), this._cache.setStore(n2, a2.data.refresh_token), this._refreshAccessToken());
   }
   async getAccessToken() {
@@ -7819,9 +8129,9 @@ class Ge {
     n2 && n2.onUploadProgress && (a2.onUploadProgress = n2.onUploadProgress);
     const c2 = this._localCache.getStore(s2);
     c2 && (a2.headers["X-TCB-Trace"] = c2);
-    const { parse: u2, inQuery: l2, search: h2 } = t2;
+    const { parse: u2, inQuery: h2, search: l2 } = t2;
     let d2 = { env: this.config.env };
-    u2 && (d2.parse = true), l2 && (d2 = { ...l2, ...d2 });
+    u2 && (d2.parse = true), h2 && (d2 = { ...h2, ...d2 });
     let p2 = function(e3, t3, n3 = {}) {
       const s3 = /\?/.test(t3);
       let r3 = "";
@@ -7829,7 +8139,7 @@ class Ge {
         "" === r3 ? !s3 && (t3 += "?") : r3 += "&", r3 += `${e4}=${encodeURIComponent(n3[e4])}`;
       return /^http(s)?\:\/\//.test(t3 += r3) ? t3 : `${e3}${t3}`;
     }(fe, "//tcb-api.tencentcloudapi.com/web", d2);
-    h2 && (p2 += h2);
+    l2 && (p2 += l2);
     const f2 = await this.post({ url: p2, data: o2, ...a2 }), g2 = f2.header && f2.header["x-tcb-trace"];
     if (g2 && this._localCache.setStore(s2, g2), 200 !== Number(f2.status) && 200 !== Number(f2.statusCode) || !f2.data)
       throw new te({ code: "NETWORK_ERROR", message: "network request error" });
@@ -7971,7 +8281,7 @@ class tt extends Xe {
   async linkAndRetrieveDataWithTicket(e2) {
     const { anonymousUuidKey: t2, refreshTokenKey: n2 } = this._cache.keys, s2 = this._cache.getStore(t2), r2 = this._cache.getStore(n2), i2 = await this._request.send("auth.linkAndRetrieveDataWithTicket", { anonymous_uuid: s2, refresh_token: r2, ticket: e2 });
     if (i2.refresh_token)
-      return this._clearAnonymousUUID(), this.setRefreshToken(i2.refresh_token), await this._request.refreshAccessToken(), Me(Be, { env: this.config.env }), Me(je, { loginType: We.CUSTOM, persistence: "local" }), { credential: { refreshToken: i2.refresh_token } };
+      return this._clearAnonymousUUID(), this.setRefreshToken(i2.refresh_token), await this._request.refreshAccessToken(), Me($e, { env: this.config.env }), Me(je, { loginType: We.CUSTOM, persistence: "local" }), { credential: { refreshToken: i2.refresh_token } };
     throw new te({ message: "匿名转化失败" });
   }
   _setAnonymousUUID(e2) {
@@ -8052,7 +8362,7 @@ class it {
     return new rt(this.config).signIn(e2, t2);
   }
   async linkAndRetrieveDataWithTicket(e2) {
-    this._anonymousAuthProvider || (this._anonymousAuthProvider = new tt(this.config)), De(Be, this._onAnonymousConverted);
+    this._anonymousAuthProvider || (this._anonymousAuthProvider = new tt(this.config)), De($e, this._onAnonymousConverted);
     return await this._anonymousAuthProvider.linkAndRetrieveDataWithTicket(e2);
   }
   async signOut() {
@@ -8082,10 +8392,10 @@ class it {
     De(Ke, e2.bind(this));
   }
   onAccessTokenRefreshed(e2) {
-    De($e, e2.bind(this));
+    De(Be, e2.bind(this));
   }
   onAnonymousConverted(e2) {
-    De(Be, e2.bind(this));
+    De($e, e2.bind(this));
   }
   onLoginTypeChanged(e2) {
     De(je, () => {
@@ -8135,9 +8445,9 @@ const ot = function(e2, t2) {
   t2 = t2 || ve();
   const n2 = Qe(this.config.env), { cloudPath: s2, filePath: r2, onUploadProgress: i2, fileType: o2 = "image" } = e2;
   return n2.send("storage.getUploadMetadata", { path: s2 }).then((e3) => {
-    const { data: { url: a2, authorization: c2, token: u2, fileId: l2, cosFileId: h2 }, requestId: d2 } = e3, p2 = { key: s2, signature: c2, "x-cos-meta-fileid": h2, success_action_status: "201", "x-cos-security-token": u2 };
+    const { data: { url: a2, authorization: c2, token: u2, fileId: h2, cosFileId: l2 }, requestId: d2 } = e3, p2 = { key: s2, signature: c2, "x-cos-meta-fileid": l2, success_action_status: "201", "x-cos-security-token": u2 };
     n2.upload({ url: a2, data: p2, file: r2, name: s2, fileType: o2, onUploadProgress: i2 }).then((e4) => {
-      201 === e4.statusCode ? t2(null, { fileID: l2, requestId: d2 }) : t2(new te({ code: "STORAGE_REQUEST_FAIL", message: `STORAGE_REQUEST_FAIL: ${e4.data}` }));
+      201 === e4.statusCode ? t2(null, { fileID: h2, requestId: d2 }) : t2(new te({ code: "STORAGE_REQUEST_FAIL", message: `STORAGE_REQUEST_FAIL: ${e4.data}` }));
     }).catch((e4) => {
       t2(e4);
     });
@@ -8175,7 +8485,7 @@ const ot = function(e2, t2) {
   }).catch((e3) => {
     t2(e3);
   }), t2.promise;
-}, lt = async function({ fileID: e2 }, t2) {
+}, ht = async function({ fileID: e2 }, t2) {
   const n2 = (await ut.call(this, { fileList: [{ fileID: e2, maxAge: 600 }] })).fileList[0];
   if ("SUCCESS" !== n2.code)
     return t2 ? t2(n2) : new Promise((e3) => {
@@ -8186,7 +8496,7 @@ const ot = function(e2, t2) {
   if (r2 = encodeURI(r2), !t2)
     return s2.download({ url: r2 });
   t2(await s2.download({ url: r2 }));
-}, ht = function({ name: e2, data: t2, query: n2, parse: s2, search: r2 }, i2) {
+}, lt = function({ name: e2, data: t2, query: n2, parse: s2, search: r2 }, i2) {
   const o2 = i2 || ve();
   let a2;
   try {
@@ -8238,7 +8548,7 @@ class ft {
     return t2 !== this.config.persistence && (this.config.persistence = t2), function(e3) {
       const { env: t3 } = e3;
       Oe[t3] = new xe(e3), Ee[t3] = new xe({ ...e3, persistence: "local" });
-    }(this.config), n2 = this.config, Ye[n2.env] = new Ge(n2), this.authObj = new it(this.config), this.authObj;
+    }(this.config), n2 = this.config, Ye[n2.env] = new Ve(n2), this.authObj = new it(this.config), this.authObj;
   }
   on(e2, t2) {
     return De.apply(this, [e2, t2]);
@@ -8247,7 +8557,7 @@ class ft {
     return qe.apply(this, [e2, t2]);
   }
   callFunction(e2, t2) {
-    return ht.apply(this, [e2, t2]);
+    return lt.apply(this, [e2, t2]);
   }
   deleteFile(e2, t2) {
     return ct.apply(this, [e2, t2]);
@@ -8256,7 +8566,7 @@ class ft {
     return ut.apply(this, [e2, t2]);
   }
   downloadFile(e2, t2) {
-    return lt.apply(this, [e2, t2]);
+    return ht.apply(this, [e2, t2]);
   }
   uploadFile(e2, t2) {
     return ot.apply(this, [e2, t2]);
@@ -8358,8 +8668,8 @@ var bt = class extends de {
   }
   setupRequest(e2, t2) {
     const n2 = Object.assign({}, e2, { spaceId: this.config.spaceId, timestamp: Date.now() }), s2 = { "Content-Type": "application/json" };
-    "auth" !== t2 && (n2.token = this.accessToken, s2["x-basement-token"] = this.accessToken), s2["x-serverless-sign"] = he.sign(n2, this.config.clientSecret);
-    const r2 = le();
+    "auth" !== t2 && (n2.token = this.accessToken, s2["x-basement-token"] = this.accessToken), s2["x-serverless-sign"] = le.sign(n2, this.config.clientSecret);
+    const r2 = he();
     s2["x-client-info"] = encodeURIComponent(JSON.stringify(r2));
     const { token: i2 } = re();
     return s2["x-client-token"] = i2, { url: this.config.requestUrl, method: "POST", data: n2, dataType: "json", header: JSON.parse(JSON.stringify(s2)) };
@@ -8424,7 +8734,7 @@ function Pt(e2 = "", t2 = {}) {
   const { data: n2, functionName: s2, method: r2, headers: i2, signHeaderKeys: o2 = [], config: a2 } = t2, c2 = Date.now(), u2 = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(e3) {
     var t3 = 16 * Math.random() | 0;
     return ("x" === e3 ? t3 : 3 & t3 | 8).toString(16);
-  }), l2 = Object.assign({}, i2, { "x-from-app-id": a2.appId, "x-from-env-id": a2.envId, "x-to-env-id": a2.envId, "x-from-instance-id": c2, "x-from-function-name": s2, "x-client-timestamp": c2, "x-alipay-source": "client", "x-request-id": u2, "x-alipay-callid": u2 }), h2 = ["x-from-app-id", "x-from-env-id", "x-to-env-id", "x-from-instance-id", "x-from-function-name", "x-client-timestamp"].concat(o2), [d2 = "", p2 = ""] = e2.split("?") || [], f2 = function(e3) {
+  }), h2 = Object.assign({}, i2, { "x-from-app-id": a2.spaceAppId, "x-from-env-id": a2.spaceId, "x-to-env-id": a2.spaceId, "x-from-instance-id": c2, "x-from-function-name": s2, "x-client-timestamp": c2, "x-alipay-source": "client", "x-request-id": u2, "x-alipay-callid": u2 }), l2 = ["x-from-app-id", "x-from-env-id", "x-to-env-id", "x-from-instance-id", "x-from-function-name", "x-client-timestamp"].concat(o2), [d2 = "", p2 = ""] = e2.split("?") || [], f2 = function(e3) {
     const t3 = e3.signedHeaders.join(";"), n3 = e3.signedHeaders.map((t4) => `${t4.toLowerCase()}:${e3.headers[t4]}
 `).join(""), s3 = _e(e3.body).toString(At), r3 = `${e3.method.toUpperCase()}
 ${e3.path}
@@ -8437,17 +8747,17 @@ ${e3.timestamp}
 ${i3}
 `, a3 = we(o3, e3.secretKey).toString(At);
     return `HMAC-SHA256 Credential=${e3.secretId}, SignedHeaders=${t3}, Signature=${a3}`;
-  }({ path: d2, query: p2, method: r2, headers: l2, timestamp: c2, body: JSON.stringify(n2), secretId: a2.secretId, secretKey: a2.secretKey, signedHeaders: h2.sort() });
-  return { url: `${a2.endpoint}${e2.replace(/^\//, "")}`, headers: Object.assign({}, l2, { Authorization: f2 }) };
+  }({ path: d2, query: p2, method: r2, headers: h2, timestamp: c2, body: JSON.stringify(n2), secretId: a2.accessKey, secretKey: a2.secretKey, signedHeaders: l2.sort() });
+  return { url: `${a2.endpoint}${e2}`, headers: Object.assign({}, h2, { Authorization: f2 }) };
 }
 function Tt({ url: e2, data: t2, method: n2 = "POST", headers: s2 = {} }) {
   return new Promise((r2, i2) => {
     ne.request({ url: e2, method: n2, data: t2, header: s2, dataType: "json", complete: (e3 = {}) => {
       if (!e3.statusCode || e3.statusCode >= 400) {
         const { errMsg: t3 } = e3.data || {};
-        return i2(new te({ code: "SYS_ERR", message: t3 || e3.errMsg || "request:fail" }));
+        return i2(new te({ code: "SYS_ERR", message: t3 || e3.errMsg || "request:fail", requestId: e3.requestID }));
       }
-      r2({ status: e3.statusCode, data: e3.data, headers: e3.header });
+      r2({ status: e3.statusCode, data: e3.data, headers: e3.header, requestId: e3.requestID });
     } });
   });
 }
@@ -8467,28 +8777,33 @@ function xt(e2 = "") {
   if (n2 <= 0)
     throw new te({ code: "INVALID_PARAM", message: "fileID不合法" });
   const s2 = t2.substring(0, n2), r2 = t2.substring(n2 + 1);
-  return s2 !== this.config.envId && console.warn("file ".concat(e2, " does not belong to env ").concat(this.config.envId)), r2;
+  return s2 !== this.config.spaceId && console.warn("file ".concat(e2, " does not belong to env ").concat(this.config.spaceId)), r2;
 }
 var Ot = class {
   constructor(e2) {
-    ["spaceId", "spaceAppId", "accessKey", "secretKey"].forEach((t3) => {
-      if (!Object.prototype.hasOwnProperty.call(e2, t3))
-        throw new Error(`${t3} required`);
-    });
-    const { spaceAppId: t2, accessKey: n2, ...s2 } = e2;
-    this.config = Object.assign({}, { endpoint: e2.endpoint || `https://${e2.envId}.api-hz.cloudbasefunction.cn/`, envId: e2.spaceId, appId: t2, secretId: n2 }, s2);
+    if (["spaceId", "spaceAppId", "accessKey", "secretKey"].forEach((t2) => {
+      if (!Object.prototype.hasOwnProperty.call(e2, t2))
+        throw new Error(`${t2} required`);
+    }), e2.endpoint) {
+      if ("string" != typeof e2.endpoint)
+        throw new Error("endpoint must be string");
+      if (!/^https:\/\//.test(e2.endpoint))
+        throw new Error("endpoint must start with https://");
+      e2.endpoint = e2.endpoint.replace(/\/$/, "");
+    }
+    this.config = Object.assign({}, e2, { endpoint: e2.endpoint || `https://${e2.spaceId}.api-hz.cloudbasefunction.cn` });
   }
   callFunction(e2) {
     return function(e3, t2) {
       const { name: n2, data: s2 } = e3, r2 = "POST", { url: i2, headers: o2 } = Pt("/functions/invokeFunction", { functionName: n2, data: s2, method: r2, headers: { "x-to-function-name": n2 }, signHeaderKeys: ["x-to-function-name"], config: t2 });
-      return Tt({ url: i2, data: s2, method: r2, headers: o2 }).then((e4) => (e4.errCode = 0, e4.success = true, e4.requestId = e4.requestID || e4.requestId, e4.result = e4.data, delete e4.requestID, delete e4.data, e4)).catch((e4) => {
+      return Tt({ url: i2, data: s2, method: r2, headers: o2 }).then((e4) => ({ errCode: 0, success: true, requestId: e4.requestId, result: e4.data })).catch((e4) => {
         throw new te({ code: e4.errCode, message: e4.errMsg, requestId: e4.requestId });
       });
     }(e2, this.config);
   }
   uploadFileToOSS({ url: e2, filePath: t2, fileType: n2, formData: s2, onUploadProgress: r2 }) {
     return new Promise((i2, o2) => {
-      const a2 = ne.uploadFile({ url: e2, filePath: t2, fileType: n2, formData: s2, success(e3) {
+      const a2 = ne.uploadFile({ url: e2, filePath: t2, fileType: n2, formData: s2, name: "file", success(e3) {
         e3 && e3.statusCode < 400 ? i2(e3) : o2(new te({ code: "UPLOAD_FAILED", message: "文件上传失败" }));
       }, fail(e3) {
         o2(new te({ code: e3.code || "UPLOAD_FAILED", message: e3.message || e3.errMsg || "文件上传失败" }));
@@ -8523,21 +8838,9 @@ var Ot = class {
       }).catch((e3) => n2(e3));
     });
   }
-  async deleteFile({ fileList: e2 }) {
-    return new Promise((t2, n2) => {
-      (!e2 || e2.length < 0) && n2(new te({ errCode: "INVALID_PARAM", errMsg: "fileList不能为空数组" })), e2.length > 50 && n2(new te({ errCode: "INVALID_PARAM", errMsg: "fileList数组长度不能超过50" }));
-      const s2 = [];
-      for (const t3 of e2)
-        "string" !== f(t3) && n2(new te({ errCode: "INVALID_PARAM", errMsg: "fileList的元素必须是非空的字符串" })), s2.push(xt.call(this, t3));
-      Ct({ path: "/?delete", data: { file_list: s2 }, method: "POST" }, this.config).then((e3) => {
-        const { file_list: n3 = [] } = e3;
-        t2({ fileList: n3.map((e4) => ({ fileID: e4.file_id, tempFileURL: e4.download_url })) });
-      }).catch((e3) => n2(e3));
-    });
-  }
 };
 var Et = { init: (e2) => {
-  e2.envId = e2.spaceId, e2.provider = "alipay";
+  e2.provider = "alipay";
   const t2 = new Ot(e2);
   return t2.auth = function() {
     return { signInAnonymously: function() {
@@ -8549,7 +8852,7 @@ var Et = { init: (e2) => {
 } };
 function Lt({ data: e2 }) {
   let t2;
-  t2 = le();
+  t2 = he();
   const n2 = JSON.parse(JSON.stringify(e2 || {}));
   if (Object.assign(n2, { clientInfo: t2 }), !n2.uniIdToken) {
     const { token: e3 } = re();
@@ -8640,7 +8943,7 @@ function Mn({ provider: e2, spaceId: t2, functionName: n2 } = {}) {
   const c2 = a2.accessControl.function || {}, u2 = Object.keys(c2);
   if (0 === u2.length)
     return true;
-  const l2 = function(e3, t3) {
+  const h2 = function(e3, t3) {
     let n3, s3, r3;
     for (let i3 = 0; i3 < e3.length; i3++) {
       const o3 = e3[i3];
@@ -8648,9 +8951,9 @@ function Mn({ provider: e2, spaceId: t2, functionName: n2 } = {}) {
     }
     return n3 || s3 || r3;
   }(u2, n2);
-  if (!l2)
+  if (!h2)
     return false;
-  if ((c2[l2] || []).find((e3 = {}) => e3.appId === s2 && (e3.platform || "").toLowerCase() === o2.toLowerCase()))
+  if ((c2[h2] || []).find((e3 = {}) => e3.appId === s2 && (e3.platform || "").toLowerCase() === o2.toLowerCase()))
     return true;
   throw console.error(`此应用[appId: ${s2}, platform: ${o2}]不在云端配置的允许访问的应用列表内，参考：https://uniapp.dcloud.net.cn/uniCloud/secure-network.html#verify-client`), Cn(An);
 }
@@ -8717,7 +9020,7 @@ function jn(e2, t2) {
     return t2.get(e3, n2, s2);
   } });
 }
-function Bn(e2) {
+function $n(e2) {
   return { on: (t2, n2) => {
     e2[t2] = e2[t2] || [], e2[t2].indexOf(n2) > -1 || e2[t2].push(n2);
   }, off: (t2, n2) => {
@@ -8726,9 +9029,9 @@ function Bn(e2) {
     -1 !== s2 && e2[t2].splice(s2, 1);
   } };
 }
-const $n = ["db.Geo", "db.command", "command.aggregate"];
+const Bn = ["db.Geo", "db.command", "command.aggregate"];
 function Wn(e2, t2) {
-  return $n.indexOf(`${e2}.${t2}`) > -1;
+  return Bn.indexOf(`${e2}.${t2}`) > -1;
 }
 function Hn(e2) {
   switch (f(e2 = se(e2))) {
@@ -8802,7 +9105,7 @@ class Jn {
   getNextStageFn(e2) {
     const t2 = this;
     return function() {
-      return Vn({ $method: e2, $param: Hn(Array.from(arguments)) }, t2, t2._database);
+      return Gn({ $method: e2, $param: Hn(Array.from(arguments)) }, t2, t2._database);
     };
   }
   get count() {
@@ -8843,15 +9146,15 @@ class Jn {
     return this._database._callCloudFunction({ action: n2, command: s2 });
   }
 }
-function Vn(e2, t2, n2) {
+function Gn(e2, t2, n2) {
   return jn(new Jn(e2, t2, n2), { get(e3, t3) {
     let s2 = "db";
-    return e3 && e3.content && (s2 = e3.content.$method), Wn(s2, t3) ? Vn({ $method: t3 }, e3, n2) : function() {
-      return Vn({ $method: t3, $param: Hn(Array.from(arguments)) }, e3, n2);
+    return e3 && e3.content && (s2 = e3.content.$method), Wn(s2, t3) ? Gn({ $method: t3 }, e3, n2) : function() {
+      return Gn({ $method: t3, $param: Hn(Array.from(arguments)) }, e3, n2);
     };
   } });
 }
-function Gn({ path: e2, method: t2 }) {
+function Vn({ path: e2, method: t2 }) {
   return class {
     constructor() {
       this.param = Array.from(arguments);
@@ -8865,13 +9168,13 @@ function Gn({ path: e2, method: t2 }) {
   };
 }
 function Yn(e2, t2 = {}) {
-  return jn(new e2(t2), { get: (e3, t3) => Wn("db", t3) ? Vn({ $method: t3 }, null, e3) : function() {
-    return Vn({ $method: t3, $param: Hn(Array.from(arguments)) }, null, e3);
+  return jn(new e2(t2), { get: (e3, t3) => Wn("db", t3) ? Gn({ $method: t3 }, null, e3) : function() {
+    return Gn({ $method: t3, $param: Hn(Array.from(arguments)) }, null, e3);
   } });
 }
 class Qn extends class {
   constructor({ uniClient: e2 = {}, isJQL: t2 = false } = {}) {
-    this._uniClient = e2, this._authCallBacks = {}, this._dbCallBacks = {}, e2._isDefault && (this._dbCallBacks = L("_globalUniCloudDatabaseCallback")), t2 || (this.auth = Bn(this._authCallBacks)), this._isJQL = t2, Object.assign(this, Bn(this._dbCallBacks)), this.env = jn({}, { get: (e3, t3) => ({ $env: t3 }) }), this.Geo = jn({}, { get: (e3, t3) => Gn({ path: ["Geo"], method: t3 }) }), this.serverDate = Gn({ path: [], method: "serverDate" }), this.RegExp = Gn({ path: [], method: "RegExp" });
+    this._uniClient = e2, this._authCallBacks = {}, this._dbCallBacks = {}, e2._isDefault && (this._dbCallBacks = L("_globalUniCloudDatabaseCallback")), t2 || (this.auth = $n(this._authCallBacks)), this._isJQL = t2, Object.assign(this, $n(this._dbCallBacks)), this.env = jn({}, { get: (e3, t3) => ({ $env: t3 }) }), this.Geo = jn({}, { get: (e3, t3) => Vn({ path: ["Geo"], method: t3 }) }), this.serverDate = Vn({ path: [], method: "serverDate" }), this.RegExp = Vn({ path: [], method: "RegExp" });
   }
   getCloudEnv(e2) {
     if ("string" != typeof e2 || !e2.trim())
@@ -8916,7 +9219,7 @@ class Qn extends class {
       return i2._callback("error", [e3]), M(q(o2, "fail"), e3).then(() => M(q(o2, "complete"), e3)).then(() => (r2(null, e3), Y(j, { type: W, content: e3 }), Promise.reject(e3)));
     }
     const c2 = M(q(o2, "invoke")), u2 = this._uniClient;
-    return c2.then(() => u2.callFunction({ name: "DCloud-clientDB", type: l, data: { action: e2, command: t2, multiCommand: n2 } })).then((e3) => {
+    return c2.then(() => u2.callFunction({ name: "DCloud-clientDB", type: h, data: { action: e2, command: t2, multiCommand: n2 } })).then((e3) => {
       const { code: t3, message: n3, token: s3, tokenExpired: c3, systemInfo: u3 = [] } = e3.result;
       if (u3)
         for (let e4 = 0; e4 < u3.length; e4++) {
@@ -8928,10 +9231,10 @@ class Qn extends class {
       if (t3) {
         return a2(new te({ code: t3, message: n3, requestId: e3.requestId }));
       }
-      e3.result.errCode = e3.result.errCode || e3.result.code, e3.result.errMsg = e3.result.errMsg || e3.result.message, s3 && c3 && (ie({ token: s3, tokenExpired: c3 }), this._callbackAuth("refreshToken", [{ token: s3, tokenExpired: c3 }]), this._callback("refreshToken", [{ token: s3, tokenExpired: c3 }]), Y($, { token: s3, tokenExpired: c3 }));
-      const l2 = [{ prop: "affectedDocs", tips: "affectedDocs不再推荐使用，请使用inserted/deleted/updated/data.length替代" }, { prop: "code", tips: "code不再推荐使用，请使用errCode替代" }, { prop: "message", tips: "message不再推荐使用，请使用errMsg替代" }];
-      for (let t4 = 0; t4 < l2.length; t4++) {
-        const { prop: n4, tips: s4 } = l2[t4];
+      e3.result.errCode = e3.result.errCode || e3.result.code, e3.result.errMsg = e3.result.errMsg || e3.result.message, s3 && c3 && (ie({ token: s3, tokenExpired: c3 }), this._callbackAuth("refreshToken", [{ token: s3, tokenExpired: c3 }]), this._callback("refreshToken", [{ token: s3, tokenExpired: c3 }]), Y(B, { token: s3, tokenExpired: c3 }));
+      const h2 = [{ prop: "affectedDocs", tips: "affectedDocs不再推荐使用，请使用inserted/deleted/updated/data.length替代" }, { prop: "code", tips: "code不再推荐使用，请使用errCode替代" }, { prop: "message", tips: "message不再推荐使用，请使用errMsg替代" }];
+      for (let t4 = 0; t4 < h2.length; t4++) {
+        const { prop: n4, tips: s4 } = h2[t4];
         if (n4 in e3.result) {
           const t5 = e3.result[n4];
           Object.defineProperty(e3.result, n4, { get: () => (console.warn(s4), t5) });
@@ -8985,15 +9288,15 @@ function as(e2 = "", t2 = {}) {
   return n2.some((e3) => e3.pagePath === s2);
 }
 const cs = !!e.uniIdRouter;
-const { loginPage: us, routerNeedLogin: ls, resToLogin: hs, needLoginPage: ds, notNeedLoginPage: ps, loginPageInTabBar: fs } = function({ pages: t2 = [], subPackages: n2 = [], uniIdRouter: s2 = {}, tabBar: r2 = {} } = e) {
-  const { loginPage: i2, needLogin: o2 = [], resToLogin: a2 = true } = s2, { needLoginPage: c2, notNeedLoginPage: u2 } = ss(t2), { needLoginPage: l2, notNeedLoginPage: h2 } = function(e2 = []) {
+const { loginPage: us, routerNeedLogin: hs, resToLogin: ls, needLoginPage: ds, notNeedLoginPage: ps, loginPageInTabBar: fs } = function({ pages: t2 = [], subPackages: n2 = [], uniIdRouter: s2 = {}, tabBar: r2 = {} } = e) {
+  const { loginPage: i2, needLogin: o2 = [], resToLogin: a2 = true } = s2, { needLoginPage: c2, notNeedLoginPage: u2 } = ss(t2), { needLoginPage: h2, notNeedLoginPage: l2 } = function(e2 = []) {
     const t3 = [], n3 = [];
     return e2.forEach((e3) => {
       const { root: s3, pages: r3 = [] } = e3, { needLoginPage: i3, notNeedLoginPage: o3 } = ss(r3, s3);
       t3.push(...i3), n3.push(...o3);
     }), { needLoginPage: t3, notNeedLoginPage: n3 };
   }(n2);
-  return { loginPage: i2, routerNeedLogin: o2, resToLogin: a2, needLoginPage: [...c2, ...l2], notNeedLoginPage: [...u2, ...h2], loginPageInTabBar: as(i2, r2) };
+  return { loginPage: i2, routerNeedLogin: o2, resToLogin: a2, needLoginPage: [...c2, ...h2], notNeedLoginPage: [...u2, ...l2], loginPageInTabBar: as(i2, r2) };
 }();
 if (ds.indexOf(us) > -1)
   throw new Error(`Login page [${us}] should not be "needLogin", please check your pages.json`);
@@ -9011,7 +9314,7 @@ function gs(e2) {
 }
 function ms(e2) {
   const t2 = rs(gs(e2));
-  return !(ps.indexOf(t2) > -1) && (ds.indexOf(t2) > -1 || ls.some((t3) => function(e3, t4) {
+  return !(ps.indexOf(t2) > -1) && (ds.indexOf(t2) > -1 || hs.some((t3) => function(e3, t4) {
     return new RegExp(t4).test(e3);
   }(e2, t3)));
 }
@@ -9048,9 +9351,9 @@ function ws({ url: e2 } = {}) {
   }();
   if (ms(e2) && n2) {
     n2.uniIdRedirectUrl = e2;
-    if (J(B).length > 0)
+    if (J($).length > 0)
       return setTimeout(() => {
-        Y(B, n2);
+        Y($, n2);
       }, 0), t2.abortLoginPageJump = true, t2;
     t2.autoToLoginPage = true;
   }
@@ -9092,11 +9395,11 @@ function Is() {
         }(n2);
     }
     s2 && function(e3 = {}) {
-      const t3 = J(B);
+      const t3 = J($);
       Z().then(() => {
         const n3 = is();
         if (n3 && ys({ redirect: n3 }))
-          return t3.length > 0 ? Y(B, Object.assign({ uniIdRedirectUrl: n3 }, e3)) : void (us && _s({ api: "navigateTo", redirect: n3 }));
+          return t3.length > 0 ? Y($, Object.assign({ uniIdRedirectUrl: n3 }, e3)) : void (us && _s({ api: "navigateTo", redirect: n3 }));
       });
     }(n2);
   });
@@ -9104,23 +9407,23 @@ function Is() {
 function Ss(e2) {
   !function(e3) {
     e3.onResponse = function(e4) {
-      V(j, e4);
-    }, e3.offResponse = function(e4) {
       G(j, e4);
+    }, e3.offResponse = function(e4) {
+      V(j, e4);
     };
   }(e2), function(e3) {
     e3.onNeedLogin = function(e4) {
-      V(B, e4);
+      G($, e4);
     }, e3.offNeedLogin = function(e4) {
-      G(B, e4);
+      V($, e4);
     }, cs && (L("_globalUniCloudStatus").needLoginInit || (L("_globalUniCloudStatus").needLoginInit = true, Z().then(() => {
       vs.call(e3);
-    }), hs && Is.call(e3)));
+    }), ls && Is.call(e3)));
   }(e2), function(e3) {
     e3.onRefreshToken = function(e4) {
-      V($, e4);
+      G(B, e4);
     }, e3.offRefreshToken = function(e4) {
-      G($, e4);
+      V(B, e4);
     };
   }(e2);
 }
@@ -9271,10 +9574,10 @@ function Os(e2) {
     const u2 = t2.groupField || this.groupField;
     u2 && (n2 = n2.groupField(u2));
     true === (void 0 !== t2.distinct ? t2.distinct : this.distinct) && (n2 = n2.distinct());
-    const l2 = t2.orderby || this.orderby;
-    l2 && (n2 = n2.orderBy(l2));
-    const h2 = void 0 !== t2.pageCurrent ? t2.pageCurrent : this.mixinDatacomPage.current, d2 = void 0 !== t2.pageSize ? t2.pageSize : this.mixinDatacomPage.size, p2 = void 0 !== t2.getcount ? t2.getcount : this.getcount, f2 = void 0 !== t2.gettree ? t2.gettree : this.gettree, g2 = void 0 !== t2.gettreepath ? t2.gettreepath : this.gettreepath, m2 = { getCount: p2 }, y2 = { limitLevel: void 0 !== t2.limitlevel ? t2.limitlevel : this.limitlevel, startWith: void 0 !== t2.startwith ? t2.startwith : this.startwith };
-    return f2 && (m2.getTree = y2), g2 && (m2.getTreePath = y2), n2 = n2.skip(d2 * (h2 - 1)).limit(d2).get(m2), n2;
+    const h2 = t2.orderby || this.orderby;
+    h2 && (n2 = n2.orderBy(h2));
+    const l2 = void 0 !== t2.pageCurrent ? t2.pageCurrent : this.mixinDatacomPage.current, d2 = void 0 !== t2.pageSize ? t2.pageSize : this.mixinDatacomPage.size, p2 = void 0 !== t2.getcount ? t2.getcount : this.getcount, f2 = void 0 !== t2.gettree ? t2.gettree : this.gettree, g2 = void 0 !== t2.gettreepath ? t2.gettreepath : this.gettreepath, m2 = { getCount: p2 }, y2 = { limitLevel: void 0 !== t2.limitlevel ? t2.limitlevel : this.limitlevel, startWith: void 0 !== t2.startwith ? t2.startwith : this.startwith };
+    return f2 && (m2.getTree = y2), g2 && (m2.getTreePath = y2), n2 = n2.skip(d2 * (l2 - 1)).limit(d2).get(m2), n2;
   } } };
 }
 function Es(e2) {
@@ -9295,25 +9598,25 @@ function Es(e2) {
           await M(q(t3, "complete"), o3 ? { ...r3, error: o3 } : { ...r3, result: i3 });
         }
       };
-    }({ fn: async function s4(...l2) {
-      let h2;
+    }({ fn: async function s4(...h2) {
+      let l2;
       a2 && index.showLoading({ title: r2.title, mask: r2.mask });
-      const d2 = { name: t2, type: u, data: { method: c2, params: l2 } };
+      const d2 = { name: t2, type: u, data: { method: c2, params: h2 } };
       "object" == typeof n2.secretMethods && function(e3, t3) {
         const n3 = t3.data.method, s5 = e3.secretMethods || {}, r3 = s5[n3] || s5["*"];
         r3 && (t3.secretType = r3);
       }(n2, d2);
       let p2 = false;
       try {
-        h2 = await e2.callFunction(d2);
+        l2 = await e2.callFunction(d2);
       } catch (e3) {
-        p2 = true, h2 = { result: new te(e3) };
+        p2 = true, l2 = { result: new te(e3) };
       }
-      const { errSubject: f2, errCode: g2, errMsg: m2, newToken: y2 } = h2.result || {};
-      if (a2 && index.hideLoading(), y2 && y2.token && y2.tokenExpired && (ie(y2), Y($, { ...y2 })), g2) {
+      const { errSubject: f2, errCode: g2, errMsg: m2, newToken: y2 } = l2.result || {};
+      if (a2 && index.hideLoading(), y2 && y2.token && y2.tokenExpired && (ie(y2), Y(B, { ...y2 })), g2) {
         let e3 = m2;
         if (p2 && o2) {
-          e3 = (await o2({ objectName: t2, methodName: c2, params: l2, errSubject: f2, errCode: g2, errMsg: m2 })).errMsg || m2;
+          e3 = (await o2({ objectName: t2, methodName: c2, params: h2, errSubject: f2, errCode: g2, errMsg: m2 })).errMsg || m2;
         }
         if (a2)
           if ("toast" === i2.type)
@@ -9332,13 +9635,13 @@ function Es(e2) {
                 });
               }({ title: "提示", content: e3, showCancel: i2.retry, cancelText: "取消", confirmText: i2.retry ? "重试" : "确定" });
               if (i2.retry && t3)
-                return s4(...l2);
+                return s4(...h2);
             }
           }
-        const n3 = new te({ subject: f2, code: g2, message: m2, requestId: h2.requestId });
-        throw n3.detail = h2.result, Y(j, { type: z, content: n3 }), n3;
+        const n3 = new te({ subject: f2, code: g2, message: m2, requestId: l2.requestId });
+        throw n3.detail = l2.result, Y(j, { type: z, content: n3 }), n3;
       }
-      return Y(j, { type: z, content: h2.result }), h2.result;
+      return Y(j, { type: z, content: l2.result }), l2.result;
     }, interceptorName: "callObject", getCallbackArgs: function({ params: e3 } = {}) {
       return { objectName: t2, methodName: c2, params: e3 };
     } }) });
@@ -9533,7 +9836,7 @@ function Ks(e2) {
   } }));
 }
 const js = { tcb: St, tencent: St, aliyun: pe, private: kt, alipay: Et };
-let Bs = new class {
+let $s = new class {
   init(e2) {
     let t2 = {};
     const n2 = js[e2.provider];
@@ -9591,10 +9894,10 @@ let Bs = new class {
           }
           const r2 = "callFunction" === t3 && !s2, i2 = this._initPromiseHub.exec();
           n4 = n4 || {};
-          const { success: o2, fail: a2, complete: u2 } = ee(n4), l2 = i2.then(() => s2 ? Promise.resolve() : M(q(t3, "invoke"), n4)).then(() => e4.call(this, n4)).then((e5) => s2 ? Promise.resolve(e5) : M(q(t3, "success"), e5).then(() => M(q(t3, "complete"), e5)).then(() => (r2 && Y(j, { type: H, content: e5 }), Promise.resolve(e5))), (e5) => s2 ? Promise.reject(e5) : M(q(t3, "fail"), e5).then(() => M(q(t3, "complete"), e5)).then(() => (Y(j, { type: H, content: e5 }), Promise.reject(e5))));
+          const { success: o2, fail: a2, complete: u2 } = ee(n4), h2 = i2.then(() => s2 ? Promise.resolve() : M(q(t3, "invoke"), n4)).then(() => e4.call(this, n4)).then((e5) => s2 ? Promise.resolve(e5) : M(q(t3, "success"), e5).then(() => M(q(t3, "complete"), e5)).then(() => (r2 && Y(j, { type: H, content: e5 }), Promise.resolve(e5))), (e5) => s2 ? Promise.reject(e5) : M(q(t3, "fail"), e5).then(() => M(q(t3, "complete"), e5)).then(() => (Y(j, { type: H, content: e5 }), Promise.reject(e5))));
           if (!(o2 || a2 || u2))
-            return l2;
-          l2.then((e5) => {
+            return h2;
+          h2.then((e5) => {
             o2 && o2(e5), u2 && u2(e5), r2 && Y(j, { type: H, content: e5 });
           }, (e5) => {
             a2 && a2(e5), u2 && u2(e5), r2 && Y(j, { type: H, content: e5 });
@@ -9608,30 +9911,32 @@ let Bs = new class {
   const e2 = C;
   let t2 = {};
   if (e2 && 1 === e2.length)
-    t2 = e2[0], Bs = Bs.init(t2), Bs._isDefault = true;
+    t2 = e2[0], $s = $s.init(t2), $s._isDefault = true;
   else {
     const t3 = ["auth", "callFunction", "uploadFile", "deleteFile", "getTempFileURL", "downloadFile", "database", "getCurrentUSerInfo", "importObject"];
     let n2;
     n2 = e2 && e2.length > 0 ? "应用有多个服务空间，请通过uniCloud.init方法指定要使用的服务空间" : "应用未关联服务空间，请在uniCloud目录右键关联服务空间", t3.forEach((e3) => {
-      Bs[e3] = function() {
+      $s[e3] = function() {
         return console.error(n2), Promise.reject(new te({ code: "SYS_ERR", message: n2 }));
       };
     });
   }
-  Object.assign(Bs, { get mixinDatacom() {
-    return Os(Bs);
-  } }), Ss(Bs), Bs.addInterceptor = N, Bs.removeInterceptor = D, Bs.interceptObject = F;
+  Object.assign($s, { get mixinDatacom() {
+    return Os($s);
+  } }), Ss($s), $s.addInterceptor = N, $s.removeInterceptor = D, $s.interceptObject = F;
 })();
-var $s = Bs;
-exports.$s = $s;
+var Bs = $s;
+exports.Bs = Bs;
 exports._export_sfc = _export_sfc;
 exports.createSSRApp = createSSRApp;
 exports.e = e$1;
 exports.f = f$1;
 exports.index = index;
+exports.initVueI18n = initVueI18n;
 exports.n = n$1;
 exports.o = o$1;
 exports.p = p$1;
 exports.resolveComponent = resolveComponent;
 exports.s = s$1;
+exports.sr = sr;
 exports.t = t$1;

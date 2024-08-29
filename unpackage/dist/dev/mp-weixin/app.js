@@ -10,7 +10,14 @@ if (!Math) {
   "./pages/course/course.js";
   "./pages/login/login.js";
   "./pages/tomatoclock/tomatoclock.js";
-  "./pages/pages_template/pages_template.js";
+  "./pages/campusmap/campusmap.js";
+  "./pages/feedback/feedback.js";
+  "./pages/about/about.js";
+  "./pages/message/message.js";
+  "./pages/visitorregistration/visitorregistration.js";
+  "./pages/gradesanalysis/gradesanalysis.js";
+  "./pages/userinfo/userinfo.js";
+  "./pages/studentlist/studentlist.js";
 }
 const _sfc_main = {
   onLaunch: function() {
@@ -24,10 +31,10 @@ const _sfc_main = {
   },
   // 全局变量
   globalData: {
-    host_url: "http://127.0.0.1:5000/"
+    host_url: "https://api.sboxm.link/"
   }
 };
-const App = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "C:/Users/acer/Desktop/temp/App.vue"]]);
+const App = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "E:/vue/ycxy/App.vue"]]);
 function createApp() {
   const app = common_vendor.createSSRApp(App);
   return {

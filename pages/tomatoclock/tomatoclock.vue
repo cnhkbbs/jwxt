@@ -27,7 +27,7 @@
 		<view class="time-setting">
 			<uni-row>
 				<uni-col>
-					<image style="display: block; margin: 0 auto;" src="../../static/meditation-outline.png"
+					<image style="display: block; margin: 0 auto;" src="../../static/yoga.png"
 						mode="aspectFit"></image>
 				</uni-col>
 				<uni-col>
@@ -312,6 +312,7 @@
 		margin: 0 auto;
 		margin-top: 5%;
 		font-size: 130%;
+		border-radius: 20rpx;
 		color: white;
 		text-align: center;
 		background-color: dodgerblue;

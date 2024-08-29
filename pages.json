@@ -3,11 +3,10 @@
 	"easycom": {
 		"autoscan": true,
 		"custom": {
-			// uni-ui 规则如下配置
 			"^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
 		}
 	},
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+	"pages": [
 		{
 			"path": "pages/index/index",
 			"style": {
@@ -17,6 +16,7 @@
 		{
 			"path": "pages/my/my",
 			"style": {
+				"navigationStyle": "custom",
 				"navigationBarTitleText": "我的"
 			}
 		},
@@ -32,28 +32,28 @@
 			"path" : "pages/fun/fun",
 			"style" : 
 			{
-				"navigationBarTitleText" : "功能"
+				"navigationBarTitleText" : "服务"
 			}
 		},
 		{
 			"path" : "pages/grades/grades",
 			"style" : 
 			{
-				"navigationBarTitleText" : ""
+				"navigationBarTitleText" : "成绩"
 			}
 		},
 		{
 			"path" : "pages/course/course",
 			"style" : 
 			{
-				"navigationBarTitleText" : ""
+				"navigationBarTitleText" : "课程表"
 			}
 		}
         ,{
             "path" : "pages/login/login",
             "style" :                                                                                    
             {
-                "navigationBarTitleText": "",
+                "navigationBarTitleText": "登录",
                 "enablePullDownRefresh": false
             }
             
@@ -66,10 +66,64 @@
         	}
         },
         {
-        	"path" : "pages/pages_template/pages_template",
+        	"path" : "pages/campusmap/campusmap",
         	"style" : 
         	{
-        		"navigationBarTitleText" : "页面模板"
+        		"navigationBarTitleText" : "校园地图"
+        	}
+        },
+        {
+        	"path" : "pages/feedback/feedback",
+        	"style" : 
+        	{
+        		"navigationBarTitleText" : "意见反馈"
+        	}
+        },
+        {
+        	"path" : "pages/about/about",
+        	"style" : 
+        	{
+        		"navigationBarTitleText" : "关于"
+        	}
+        },
+        {
+        	"path" : "pages/message/message",
+        	"style" : 
+        	{
+        		"navigationBarTitleText" : "站内信",
+        		"enablePullDownRefresh" : true
+        	}
+        },
+        {
+        	"path" : "pages/visitorregistration/visitorregistration",
+        	"style" : 
+        	{
+        		"navigationBarTitleText" : "来访登记",
+        		"enablePullDownRefresh" : true
+        	}
+        },
+        {
+        	"path" : "pages/gradesanalysis/gradesanalysis",
+        	"style" : 
+        	{
+        		"navigationBarTitleText" : "成绩分析",
+        		"enablePullDownRefresh" : false
+        	}
+        },
+        {
+        	"path" : "pages/userinfo/userinfo",
+        	"style" : 
+        	{
+        		"navigationBarTitleText" : "个人信息",
+        		"enablePullDownRefresh" : false
+        	}
+        },
+        {
+        	"path" : "pages/studentlist/studentlist",
+        	"style" : 
+        	{
+        		"navigationBarTitleText" : "学生列表",
+        		"enablePullDownRefresh" : false
         	}
         }
     ],
@@ -89,7 +143,7 @@
 			},
 			{
 				"pagePath": "pages/fun/fun",
-				"text": "功能",
+				"text": "服务",
 				"iconPath": "static/apps-2-line.png",
 				"selectedIconPath": "static/apps-2-fill.png"
 			},

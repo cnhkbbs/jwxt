@@ -39,5 +39,5 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     e: $props.loadingType == 5
   }, $props.loadingType == 5 ? {} : {});
 }
-const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "C:/Users/acer/Desktop/temp/uni_modules/qiun-data-charts/components/qiun-loading/qiun-loading.vue"]]);
+const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "E:/vue/ycxy/uni_modules/qiun-data-charts/components/qiun-loading/qiun-loading.vue"]]);
 wx.createComponent(Component);

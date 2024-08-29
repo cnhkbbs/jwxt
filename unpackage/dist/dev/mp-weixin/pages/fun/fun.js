@@ -3,39 +3,57 @@ const common_vendor = require("../../common/vendor.js");
 const _sfc_main = {
   data() {
     return {
+      role: "1",
       pictures: [
         {
           id: "1",
-          url: "http://cdn-hw-static2.shanhutech.cn/bizhi/staticwp/202211/4f182009973bd05e633a12096c9d986b--4261460870.jpg"
+          url: "https://pic.imgdb.cn/item/656e9993c458853aef72abeb.png"
         },
         {
           id: "2",
-          url: "http://cdn-hw-static2.shanhutech.cn/bizhi/staticwp/202209/3aec73edc257e4d7f679a4e9791d93e1--405277223.jpg"
+          url: "https://pic.imgdb.cn/item/656e9993c458853aef72ac42.png"
         },
         {
           id: "3",
-          url: "http://cdn-hw-static2.shanhutech.cn/bizhi/staticwp/202310/17e05efa4e03c4a62a9ef4dc8fbeb409--2755567652.jpg"
+          url: "https://pic.imgdb.cn/item/656e9993c458853aef72acae.png"
         },
         {
           id: "4",
-          url: "http://cdn-hw-static2.shanhutech.cn/bizhi/staticwp/202308/d5394a3a31c3bd976198f6668f28ab5e--300955069.jpg"
+          url: "https://pic.imgdb.cn/item/656e9994c458853aef72ad03.png"
         },
         {
           id: "5",
-          url: "http://cdn-hw-static2.shanhutech.cn/bizhi/staticwp/202308/7d4cdf253feece60ab5c55c8e185008f--342728100.jpg"
+          url: "https://pic.imgdb.cn/item/656e9993c458853aef72ab82.png"
         },
         {
           id: "6",
-          url: "http://cdn-hw-static2.shanhutech.cn/bizhi/staticwp/202308/3d4cd72c4b547d123afeb5ec630de597--2966950063.jpg"
+          url: "https://pic.imgdb.cn/item/656e99b8c458853aef730151.png"
         }
       ]
     };
   },
+  onShow() {
+    common_vendor.index.getStorage({
+      key: "role",
+      success: (res) => {
+        this.role = res.data;
+      },
+      fail: (res) => {
+        this.role = "1";
+      }
+    });
+  },
   methods: {
     goToGradesPage() {
-      common_vendor.index.navigateTo({
-        url: "/pages/grades/grades"
-      });
+      if (this.role === "1") {
+        common_vendor.index.navigateTo({
+          url: "/pages/grades/grades"
+        });
+      } else {
+        common_vendor.index.navigateTo({
+          url: "/pages/studentlist/studentlist?refer=grades"
+        });
+      }
     },
     goToCoursePage() {
       common_vendor.index.navigateTo({
@@ -47,6 +65,22 @@ const _sfc_main = {
         url: "/pages/tomatoclock/tomatoclock"
       });
     },
+    goToVisitorRegistrationPage() {
+      common_vendor.index.navigateTo({
+        url: "/pages/visitorregistration/visitorregistration"
+      });
+    },
+    goToGradesAnalysisPage() {
+      if (this.role === "1") {
+        common_vendor.index.navigateTo({
+          url: "/pages/gradesanalysis/gradesanalysis"
+        });
+      } else {
+        common_vendor.index.navigateTo({
+          url: "/pages/studentlist/studentlist?refer=analysis"
+        });
+      }
+    },
     onPreviewImage(url) {
       common_vendor.index.previewImage({
         urls: this.pictures.map((v) => v.url),
@@ -56,16 +90,12 @@ const _sfc_main = {
   }
 };
 if (!Array) {
-  const _easycom_uni_grid_item2 = common_vendor.resolveComponent("uni-grid-item");
-  const _easycom_uni_grid2 = common_vendor.resolveComponent("uni-grid");
   const _easycom_uni_section2 = common_vendor.resolveComponent("uni-section");
-  (_easycom_uni_grid_item2 + _easycom_uni_grid2 + _easycom_uni_section2)();
+  _easycom_uni_section2();
 }
-const _easycom_uni_grid_item = () => "../../uni_modules/uni-grid/components/uni-grid-item/uni-grid-item.js";
-const _easycom_uni_grid = () => "../../uni_modules/uni-grid/components/uni-grid/uni-grid.js";
 const _easycom_uni_section = () => "../../uni_modules/uni-section/components/uni-section/uni-section.js";
 if (!Math) {
-  (_easycom_uni_grid_item + _easycom_uni_grid + _easycom_uni_section)();
+  _easycom_uni_section();
 }
 function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
   return {
@@ -76,28 +106,22 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
         c: item.id
       };
     }),
-    b: common_vendor.o(($event) => $options.goToGradesPage()),
-    c: common_vendor.o(($event) => $options.goToCoursePage()),
-    d: common_vendor.o(($event) => $options.goToCoursePage()),
+    b: common_vendor.o((...args) => $options.goToGradesPage && $options.goToGradesPage(...args)),
+    c: common_vendor.o((...args) => $options.goToCoursePage && $options.goToCoursePage(...args)),
+    d: common_vendor.o((...args) => $options.goToGradesAnalysisPage && $options.goToGradesAnalysisPage(...args)),
     e: common_vendor.p({
-      column: 4
-    }),
-    f: common_vendor.p({
-      title: "功能一览",
+      title: "我的服务",
       type: "line",
       padding: true
     }),
-    g: common_vendor.o((...args) => $options.goToTomatoClockPage && $options.goToTomatoClockPage(...args)),
-    h: common_vendor.o(($event) => $options.goToCoursePage()),
-    i: common_vendor.p({
-      column: 4
-    }),
-    j: common_vendor.p({
-      title: "其他功能",
+    f: common_vendor.o((...args) => $options.goToTomatoClockPage && $options.goToTomatoClockPage(...args)),
+    g: common_vendor.o((...args) => $options.goToVisitorRegistrationPage && $options.goToVisitorRegistrationPage(...args)),
+    h: common_vendor.p({
+      title: "其他服务",
       type: "line",
       padding: true
     })
   };
 }
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "C:/Users/acer/Desktop/temp/pages/fun/fun.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "E:/vue/ycxy/pages/fun/fun.vue"]]);
 wx.createPage(MiniProgramPage);

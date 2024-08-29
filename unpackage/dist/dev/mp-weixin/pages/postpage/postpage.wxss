@@ -1,18 +1,39 @@
 
-#article{
-		background-color: lightblue;
+.article{
+		margin: 0 auto;
+		width: 98%;
+		padding-bottom: 5vw;
 }
-#post_title {
+.post-title-box{
+		padding-left: 40rpx;
+		padding-right: 40rpx;
+		padding-bottom: 2vw;
+}
+.post-title-text {
 		display: block;
+		width: 100%;
 		font-size: 1.5rem;
 		margin: 0 auto;
-		text-align: center;
+		text-align: left;
 		padding-top: 0.5rem;
 		padding-bottom: 0.5rem;
 }
-#post_content {
-		background-color: white;
-		margin: 1rem;
-		padding: 0.5rem;
-		border: 0.1rem solid black;
+.post-cover{
+		margin: 0 auto;
+		border-radius: 20rpx;
+		height: 60vw;
+		width: 93%;
+		overflow: hidden;
+}
+.post-content {
+		width: 100%;
+}
+.post-content-text{
+		display: block;
+		padding-top: 7vw;
+		padding-left: 40rpx;
+		padding-right: 40rpx;
+		width: auto;
+		font-size: 105%;
+		word-wrap: break-word;
 }

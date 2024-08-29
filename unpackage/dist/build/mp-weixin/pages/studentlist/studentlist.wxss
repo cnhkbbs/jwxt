@@ -1,0 +1,1 @@
+.list-box{padding:10rpx 30rpx}.list-item{width:100%;box-sizing:border-box;border-bottom:1px solid #ccc;display:flex;justify-content:space-between;margin-bottom:20rpx;padding:10rpx 0}

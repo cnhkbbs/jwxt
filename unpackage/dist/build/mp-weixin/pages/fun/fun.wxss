@@ -1,0 +1,1 @@
+.top-image-box{margin:0 auto 10%;width:90vw;height:50vw;border-radius:20rpx;overflow:hidden;box-shadow:0 15rpx 15rpx rgba(0,0,0,.2)}.swiper-img{width:90vw;height:50vw}.menu-button-box{display:flex;width:100%}.menu-button-icon{display:inline-block;width:20%}.menu-button-text{display:inline-block;width:80%;height:15vw;padding-top:5vw}.item-icon{width:15vw;height:15vw}

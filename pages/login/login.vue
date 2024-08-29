@@ -1,7 +1,6 @@
 <template>
 	<view class="main">
 		<view class="form">
-			<!-- <view><h1 style="font-weight: 600;text-align: center;">欢迎来到教务系统</h1></view> -->
 			<view class="tabs">
 				<view>
 					<view @click="formData.role = 1" :class="formData.role === 1 ? 'checked' : ''">学生登录</view>
@@ -24,6 +23,14 @@
 
 			<view style="margin-top: 60rpx;">
 				<button type="primary" @click="submit" style="background-color: #409EFF;">登录</button>
+			</view>
+			<view style="margin-top: 60rpx;">
+				<button type="primary" @click="goToIndexPage" style="background-color: #c3c3c3;">游客访问</button>
+			</view>
+			<view style="width: 100%; text-align: center;">
+				<text>体验账号</text><br />
+				<text>学生 账号：230001 密码： 123456</text><br />
+				<text>教师 账号：10001 密码： 123456</text>
 			</view>
 		</view>
 	</view>
@@ -94,18 +101,33 @@
 											data: data.token
 										});
 										uni.setStorage({
-											key: 'token',
-											data: data.token
+											key: 'username',
+											data: this.formData.username
 										});
-										uni.switchTab({
-											url: '/pages/index/index'
+										uni.setStorage({
+											key: 'role',
+											data: data.role
 										});
+										uni.setStorage({
+											key: 'name',
+											data: data.name
+										});
+										setTimeout(() => {
+											uni.switchTab({
+												url: '/pages/index/index'
+											});
+										}, 1000)
 									}
 								}
 							})
 						}
 					})
 				}
+			},
+			goToIndexPage() {
+				uni.switchTab({
+					url: '/pages/index/index'
+				})
 			}
 		}
 	}

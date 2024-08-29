@@ -1,0 +1,13 @@
+
+.submit-button {
+		text-align: center;
+		border: none;
+		color: white;
+		background-color: dodgerblue;
+}
+.feedback-article {
+		text-align: center;
+		margin: 0 auto;
+		padding-top: 2%;
+		width: 97%;
+}

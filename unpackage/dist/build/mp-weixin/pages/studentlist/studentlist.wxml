@@ -1,0 +1,1 @@
+<view wx:for="{{a}}" wx:for-item="value" wx:key="d" class="list-item" bindtap="{{value.e}}"><view>{{value.a}}</view><view style="width:50%">{{value.b}}</view><view><uni-icons wx:if="{{b}}" u-i="{{value.c}}" bind:__l="__l" u-p="{{b}}"></uni-icons></view></view>

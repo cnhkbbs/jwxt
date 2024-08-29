@@ -1,0 +1,1 @@
+<view style="background-color:#f8f8f8;width:100%;padding-top:3vh"><view class="message-box"><view class="no-message-box" hidden="{{!a}}"><image style="width:55vw;display:block;margin:0 auto" src="/static/note-taking-isometric.png" mode="aspectFit"></image><text>暂无消息</text></view><view class="message-list" hidden="{{!c}}"><text>{{b}}</text></view></view></view>

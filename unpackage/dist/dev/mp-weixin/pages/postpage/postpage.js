@@ -7,26 +7,24 @@ const _sfc_main = {
   data() {
     return {
       title: "",
-      post_content: {}
+      host_url: "",
+      post_data: ""
     };
   },
   onLoad(opt) {
     this.title = opt.title;
+    this.host_url = getApp().globalData.host_url;
   },
   methods: {
     getPostContent() {
       common_vendor.index.request({
-        url: "http://127.0.0.1:5000/posts/content",
+        url: this.host_url + "posts/content",
         method: "POST",
         data: {
           post_title: this.title
         },
         success: (res) => {
-          let res_data = res.data;
-          res_data = res_data["content"];
-          res_data = res_data.replace(/\n/g, "\n");
-          const post_content = res_data;
-          this.$set(this, "post_content", post_content);
+          this.post_data = res.data;
         },
         fail: (err) => {
           console.error("err", err);
@@ -38,8 +36,10 @@ const _sfc_main = {
 function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
   return {
     a: common_vendor.t($data.title),
-    b: common_vendor.t($data.post_content)
+    b: common_vendor.t($data.post_data.author),
+    c: $data.post_data.cover,
+    d: common_vendor.t($data.post_data.content)
   };
 }
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "C:/Users/acer/Desktop/temp/pages/postpage/postpage.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "E:/vue/ycxy/pages/postpage/postpage.vue"]]);
 wx.createPage(MiniProgramPage);

@@ -1,6 +1,6 @@
 {
-    "name" : "wx_demo",
-    "appid" : "",
+    "name" : "ycxy",
+    "appid" : "__UNI__C96E320",
     "description" : "",
     "versionName" : "1.0.0",
     "versionCode" : "100",
@@ -51,10 +51,14 @@
     /* 小程序特有相关 */
     "mp-weixin" : {
         "appid" : "wxe29359552aa80ff4",
+        "lazyCodeLoading" : "requiredComponents",
         "setting" : {
-            "urlCheck" : false
+            "urlCheck" : false,
+            "minified" : false,
+            "postcss" : true
         },
-        "usingComponents" : true
+        "usingComponents" : true,
+        "permission" : {}
     },
     "mp-alipay" : {
         "usingComponents" : true

@@ -1,16 +1,16 @@
 <template>
-	<view id="article">
-		<view>
-			<text id="post_title">{{title}}</text>
+	<view class="article">
+		<view class="post-title-box">
+			<text class="post-title-text">{{title}}</text>
+			<text style="font-size: 80%; color: darkgray;">{{post_data.author}}</text>
 		</view>
-		<view id="post_cover">
-			图片
+		<view class="post-cover">
+			<image style="width: 100%; height: 65vw;" :src="post_data.cover"></image>
 		</view>
-		<view id="post_content">
-			<text>{{post_content}}</text>
+		<view class="post-content">
+			<text class="post-content-text">{{post_data.content}}</text>
 		</view>
 	</view>
-
 </template>
 
 <script>
@@ -21,27 +21,24 @@
 		data() {
 			return {
 				title: '',
-				post_content: {}
+				host_url: '',
+				post_data: ''
 			}
 		},
 		onLoad(opt) {
 			this.title = opt.title;
-
+			this.host_url = getApp().globalData.host_url;
 		},
 		methods: {
 			getPostContent() {
 				uni.request({
-					url: 'http://127.0.0.1:5000/posts/content',
+					url: this.host_url+'posts/content',
 					method: 'POST',
 					data: {
 						post_title: this.title,
 					},
 					success: (res) => {
-						let res_data = res.data;
-						res_data = res_data["content"];
-						res_data = res_data.replace(/\n/g, '\n');
-						const post_content = res_data;
-						this.$set(this, 'post_content', post_content);
+						this.post_data = res.data;
 					},
 					fail: (err) => {
 						console.error('err', err);
@@ -53,22 +50,42 @@
 </script>
 
 <style>
-	#article{
-		background-color: lightblue;
+	.article{
+		margin: 0 auto;
+		width: 98%;
+		padding-bottom: 5vw;
 	}
-	#post_title {
+	.post-title-box{
+		padding-left: 40rpx;
+		padding-right: 40rpx;
+		padding-bottom: 2vw;
+	}
+	.post-title-text {
 		display: block;
+		width: 100%;
 		font-size: 1.5rem;
 		margin: 0 auto;
-		text-align: center;
+		text-align: left;
 		padding-top: 0.5rem;
 		padding-bottom: 0.5rem;
 	}
-
-	#post_content {
-		background-color: white;
-		margin: 1rem;
-		padding: 0.5rem;
-		border: 0.1rem solid black;
+	.post-cover{
+		margin: 0 auto;
+		border-radius: 20rpx;
+		height: 60vw;
+		width: 93%;
+		overflow: hidden;
+	}
+	.post-content {
+		width: 100%;
+	}
+	.post-content-text{
+		display: block;
+		padding-top: 7vw;
+		padding-left: 40rpx;
+		padding-right: 40rpx;
+		width: auto;
+		font-size: 105%;
+		word-wrap: break-word;
 	}
 </style>

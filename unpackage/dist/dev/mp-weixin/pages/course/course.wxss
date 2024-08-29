@@ -1,0 +1,32 @@
+
+.table-col {
+		width: 10rpx;
+}
+.table-list {}
+.table-item {
+		display: flex;
+		/* justify-content: space-between; */
+}
+.table-item-text {
+		max-width: 12.5vw;
+		width: 15vw;
+		height: 150rpx;
+		text-align: center;
+		padding: 20rpx 0;
+		box-sizing: border-box;
+		overflow-wrap: break-word;
+		word-wrap: break-word;
+		border: 1px solid #ccc;
+}
+.table-item-text-course {
+		font-size: 60%;
+		max-width: 12.5vw;
+		width: 15vw;
+		height: 150rpx;
+		text-align: center;
+		padding: 20rpx 0;
+		box-sizing: border-box;
+		overflow-wrap: break-word;
+		word-wrap: break-word;
+		border: 1px solid #ccc;
+}

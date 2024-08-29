@@ -1,0 +1,1 @@
+"use strict";const e={data:()=>({id:0,title:"map",latitude:41.9082,longitude:123.4148}),methods:{}};const t=require("../../common/vendor.js")._export_sfc(e,[["render",function(e,t,o,r,n,c){return{a:n.latitude,b:n.longitude,c:e.covers}}]]);wx.createPage(t);
